@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             xmlns:views="using:ThriveERP.Desktop.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ThriveERP.Desktop.Views.EmployeeView"
+             x:DataType="vm:EmployeeViewModel">
+    <Grid>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="20" Spacing="20">
+                <TextBlock Text="HR / Employees" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+                <Button Content="Add Employee" Command="{Binding ShowAddEmployeeCommand}" Classes="accent" VerticalAlignment="Center" Padding="15,8"/>
+                <Button Content="Refresh" Command="{Binding LoadEmployeesCommand}" VerticalAlignment="Center" Padding="15,8"/>
+            </StackPanel>
+
+            <DataGrid Margin="20,0,20,20" ItemsSource="{Binding Employees}"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      GridLinesVisibility="All"
+                      BorderThickness="1" BorderBrush="#E5E7EB">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="2*"/>
+                    <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="*"/>
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                    <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="*"/>
+                    <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+
+        <!-- Overlay for Add Employee -->
+        <Border Background="#80000000" IsVisible="{Binding IsAddingEmployee}">
+            <Border Background="White" CornerRadius="8" Padding="20"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Width="500">
+                <views:AddEmployeeView DataContext="{Binding AddEmployeeViewModel}" />
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

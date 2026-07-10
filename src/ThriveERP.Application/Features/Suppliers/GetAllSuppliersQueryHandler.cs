@@ -15,7 +15,16 @@ public class GetAllSuppliersQueryHandler : IRequestHandler<GetAllSuppliersQuery,
 
     public async Task<List<SupplierDto>> Handle(GetAllSuppliersQuery request, CancellationToken cancellationToken)
     {
-        var list = await _repository.GetAllAsync(cancellationToken);
-        return _mapper.Map<List<SupplierDto>>(list);
+        var suppliers = await _repository.GetAllAsync(cancellationToken);
+        return suppliers.Select(s => new SupplierDto 
+        { 
+            Id = s.Id, 
+            Name = s.Name,
+            Phone = s.Phone,
+            Email = s.Email,
+            Address = s.Address,
+            CurrentBalance = s.CurrentBalance,
+            IsActive = s.IsActive
+        }).ToList();
     }
 }

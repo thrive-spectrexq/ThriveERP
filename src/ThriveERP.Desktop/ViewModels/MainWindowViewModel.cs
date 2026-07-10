@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ThriveERP.Desktop.ViewModels;
 
@@ -10,15 +11,25 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
 
+    public SalesViewModel SalesViewModel { get; }
+    public EmployeeViewModel EmployeeViewModel { get; }
+
     [ObservableProperty]
     private ViewModelBase _currentPage;
+
+    [ObservableProperty]
+    private ViewModelBase _currentView;
 
     public ObservableCollection<ListItemTemplate> Items { get; } = new()
     {
         new ListItemTemplate(typeof(DashboardViewModel), "Dashboard", "Home"),
         new ListItemTemplate(typeof(ProductsViewModel), "Products", "Box"),
         new ListItemTemplate(typeof(SalesViewModel), "Sales", "ShoppingCart"),
+        new ListItemTemplate(typeof(PurchasingViewModel), "Purchasing", "CartOutline"),
         new ListItemTemplate(typeof(CustomersViewModel), "Customers", "People"),
+        new ListItemTemplate(typeof(SuppliersViewModel), "Suppliers", "BuildingFactory"),
+        new ListItemTemplate(typeof(EmployeeViewModel), "HR/Employees", "AccountMultiple"),
+        new ListItemTemplate(typeof(InventoryViewModel), "Inventory", "BoxMultiple"),
         new ListItemTemplate(typeof(SettingsViewModel), "Settings", "Settings")
     };
 
@@ -30,6 +41,8 @@ public partial class MainWindowViewModel : ViewModelBase
         _mediator = mediator;
         _currentPage = new DashboardViewModel();
         SelectedListItem = Items[0];
+        SalesViewModel = App.ServiceProvider!.GetRequiredService<SalesViewModel>();
+        EmployeeViewModel = App.ServiceProvider!.GetRequiredService<EmployeeViewModel>();
     }
 
     partial void OnSelectedListItemChanged(ListItemTemplate? value)

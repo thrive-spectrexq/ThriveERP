@@ -13,8 +13,8 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         _context = context;
     }
 
-    public async Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default) => await _context.Set<T>().FindAsync(new object[] { id }, ct);
-    public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default) => await _context.Set<T>().ToListAsync(ct);
+    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default) => await _context.Set<T>().FindAsync(new object[] { id }, ct);
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken ct = default) => await _context.Set<T>().ToListAsync(ct);
     public async Task<T> AddAsync(T entity, CancellationToken ct = default)
     {
         await _context.Set<T>().AddAsync(entity, ct);

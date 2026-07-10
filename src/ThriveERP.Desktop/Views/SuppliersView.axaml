@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             x:Class="ThriveERP.Desktop.Views.SuppliersView"
+             x:DataType="vm:SuppliersViewModel">
+    
+    <Grid Name="RootGrid">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="0,0,0,20">
+          <TextBlock Text="Suppliers" FontSize="28" FontWeight="SemiBold"/>
+          <Button Content="Add Supplier" Command="{Binding ShowAddSupplierCommand}" Background="#3B82F6" Foreground="White" Padding="15,8" CornerRadius="4"/>
+          <Button Content="Refresh" Command="{Binding LoadSuppliersCommand}" Background="#E5E7EB" Foreground="Black" Padding="15,8" CornerRadius="4"/>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding Suppliers}" 
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  GridLinesVisibility="All"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+            <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="150" />
+            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150" />
+            <DataGridTextColumn Header="Balance" Binding="{Binding CurrentBalance, StringFormat={}{0:C}}" Width="100" />
+            <DataGridTemplateColumn Header="Actions" Width="150">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="10" Margin="10,0">
+                    <Button Content="Edit" Classes="action" 
+                            Command="{Binding #RootGrid.((vm:SuppliersViewModel)DataContext).EditSupplierCommand}" 
+                            CommandParameter="{Binding}" />
+                    <Button Content="Delete" Classes="action" Foreground="Red"
+                            Command="{Binding #RootGrid.((vm:SuppliersViewModel)DataContext).DeleteSupplierCommand}" 
+                            CommandParameter="{Binding}" />
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+
+      <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}" ZIndex="100">
+        <ContentControl Content="{Binding CurrentOverlay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+    </Grid>
+</UserControl>

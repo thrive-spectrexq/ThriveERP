@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             mc:Ignorable="d"
+             x:Class="ThriveERP.Desktop.Views.AddEmployeeView"
+             x:DataType="vm:AddEmployeeViewModel">
+    <StackPanel Spacing="15">
+        <TextBlock Text="Add New Employee" FontSize="20" FontWeight="SemiBold"/>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Full Name *"/>
+            <TextBox Text="{Binding FullName}" Watermark="e.g. Jane Doe"/>
+        </StackPanel>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Position"/>
+            <TextBox Text="{Binding Position}" Watermark="e.g. Sales Manager"/>
+        </StackPanel>
+        
+        <Grid ColumnDefinitions="*,*">
+            <StackPanel Grid.Column="0" Spacing="5" Margin="0,0,10,0">
+                <TextBlock Text="Email"/>
+                <TextBox Text="{Binding Email}" Watermark="e.g. jane@company.com"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="5">
+                <TextBlock Text="Phone"/>
+                <TextBox Text="{Binding Phone}" Watermark="e.g. 555-1234"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Spacing="5">
+            <TextBlock Text="Hire Date"/>
+            <DatePicker SelectedDate="{Binding HireDate}" HorizontalAlignment="Stretch"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+            <Button Content="Cancel" Command="{Binding CancelCommand}" Padding="15,8"/>
+            <Button Content="Save" Command="{Binding SaveCommand}" Classes="accent" Padding="15,8"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

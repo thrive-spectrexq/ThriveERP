@@ -21,9 +21,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnIsDarkModeChanged(bool value)
     {
-        if (Application.Current is not null)
+        if (Avalonia.Application.Current is not null)
         {
-            Application.Current.RequestedThemeVariant = value ? ThemeVariant.Dark : ThemeVariant.Light;
+            Avalonia.Application.Current.RequestedThemeVariant = value ? ThemeVariant.Dark : ThemeVariant.Light;
         }
     }
 

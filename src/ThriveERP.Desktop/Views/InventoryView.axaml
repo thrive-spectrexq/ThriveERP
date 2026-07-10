@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             x:Class="ThriveERP.Desktop.Views.InventoryView"
+             x:DataType="vm:InventoryViewModel">
+    
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="0,0,0,20">
+            <TextBlock Text="Inventory" FontSize="28" FontWeight="SemiBold"/>
+            <Button Content="Refresh" Command="{Binding LoadStockLevelsCommand}" Background="#3B82F6" Foreground="White" Padding="15,8" CornerRadius="4"/>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding StockLevels}" 
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  GridLinesVisibility="All"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="200"/>
+                <DataGridTextColumn Header="Quantity On Hand" Binding="{Binding QuantityOnHand}" Width="150"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

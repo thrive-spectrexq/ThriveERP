@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             x:Class="ThriveERP.Desktop.Views.PurchasingView"
+             x:DataType="vm:PurchasingViewModel">
+    
+    <Grid Name="RootGrid">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="0,0,0,20">
+          <TextBlock Text="Purchase Orders" FontSize="28" FontWeight="SemiBold"/>
+          <Button Content="New Purchase Order" Command="{Binding ShowAddOrderCommand}" Background="#3B82F6" Foreground="White" Padding="15,8" CornerRadius="4"/>
+          <Button Content="Refresh" Command="{Binding LoadOrdersCommand}" Background="#E5E7EB" Foreground="Black" Padding="15,8" CornerRadius="4"/>
+        </StackPanel>
+
+        <DataGrid ItemsSource="{Binding PurchaseOrders}" 
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  GridLinesVisibility="All"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Order #" Binding="{Binding OrderNumber}" Width="150"/>
+            <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="200" />
+            <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="150" />
+            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+            <DataGridTextColumn Header="Total" Binding="{Binding GrandTotal, StringFormat={}{0:C}}" Width="120" />
+            <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat={}{0:d}}" Width="100" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </DockPanel>
+
+      <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}" ZIndex="100">
+        <ContentControl Content="{Binding CurrentOverlay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+    </Grid>
+</UserControl>

@@ -18,9 +18,25 @@ public class CreateSupplierCommandHandler : IRequestHandler<CreateSupplierComman
 
     public async Task<SupplierDto> Handle(CreateSupplierCommand request, CancellationToken cancellationToken)
     {
-        var entity = new Supplier { Name = request.Name };
-        await _repository.AddAsync(entity, cancellationToken);
+        var supplier = new Supplier 
+        { 
+            Name = request.Name,
+            Phone = request.Phone,
+            Email = request.Email,
+            Address = request.Address,
+            IsActive = request.IsActive
+        };
+        await _repository.AddAsync(supplier, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return _mapper.Map<SupplierDto>(entity);
+        
+        return new SupplierDto { 
+            Id = supplier.Id, 
+            Name = supplier.Name,
+            Phone = supplier.Phone,
+            Email = supplier.Email,
+            Address = supplier.Address,
+            CurrentBalance = supplier.CurrentBalance,
+            IsActive = supplier.IsActive
+        };
     }
 }

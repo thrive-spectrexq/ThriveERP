@@ -8,7 +8,7 @@ using ThriveERP.Application.Features.Products;
 
 namespace ThriveERP.Desktop.ViewModels;
 
-public partial class AddProductViewModel : ObservableValidator
+public partial class AddProductViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     
@@ -19,6 +19,11 @@ public partial class AddProductViewModel : ObservableValidator
 
     [ObservableProperty]
     private string? _barcode;
+
+    [ObservableProperty]
+    private Guid? _id;
+
+
 
     [ObservableProperty]
     [Required(ErrorMessage = "Name is required")]
@@ -54,23 +59,44 @@ public partial class AddProductViewModel : ObservableValidator
         if (HasErrors)
             return;
 
-        var command = new CreateProductCommand(
-            Sku,
-            Barcode,
-            Name,
-            Description,
-            null, 
-            null, 
-            CostPrice,
-            SellingPrice,
-            TrackBatches,
-            ReorderThreshold,
-            true 
-        );
-
         try
         {
-            await _mediator.Send(command);
+            if (Id.HasValue && Id.Value != Guid.Empty)
+            {
+                var command = new UpdateProductCommand(
+                    Id.Value,
+                    Sku,
+                    Barcode,
+                    Name,
+                    Description,
+                    null,
+                    null,
+                    CostPrice,
+                    SellingPrice,
+                    TrackBatches,
+                    ReorderThreshold,
+                    true
+                );
+                await _mediator.Send(command);
+            }
+            else
+            {
+                var command = new CreateProductCommand(
+                    Sku,
+                    Barcode,
+                    Name,
+                    Description,
+                    null,
+                    null,
+                    CostPrice,
+                    SellingPrice,
+                    TrackBatches,
+                    ReorderThreshold,
+                    true
+                );
+                await _mediator.Send(command);
+            }
+
             OnSaveComplete?.Invoke();
         }
         catch (Exception)

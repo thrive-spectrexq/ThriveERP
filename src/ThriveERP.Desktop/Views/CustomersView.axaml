@@ -22,10 +22,19 @@
                 BorderBrush="Gray">
         <DataGrid.Columns>
           <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-          <DataGridTextColumn Header="Phone" Binding="{Binding Phone}"/>
-          <DataGridTextColumn Header="Email" Binding="{Binding Email}"/>
-          <DataGridTextColumn Header="Credit Limit" Binding="{Binding CreditLimit}"/>
-          <DataGridTextColumn Header="Current Balance" Binding="{Binding CurrentBalance}"/>
+          <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="150" />
+          <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="150" />
+          <DataGridTextColumn Header="Balance" Binding="{Binding CurrentBalance, StringFormat={}{0:C}}" Width="100" />
+          <DataGridTemplateColumn Header="Actions" Width="150">
+            <DataGridTemplateColumn.CellTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="5" Margin="5">
+                  <Button Content="Edit" Command="{Binding $parent[UserControl].((vm:CustomersViewModel)DataContext).EditCustomerCommand}" CommandParameter="{Binding}" Background="#3B82F6" Foreground="White" Padding="10,5"/>
+                  <Button Content="Delete" Command="{Binding $parent[UserControl].((vm:CustomersViewModel)DataContext).DeleteCustomerCommand}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" Padding="10,5"/>
+                </StackPanel>
+              </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+          </DataGridTemplateColumn>
         </DataGrid.Columns>
       </DataGrid>
     </DockPanel>

@@ -47,4 +47,36 @@ public partial class ProductsViewModel : ViewModelBase
         
         CurrentOverlay = addVm;
     }
+
+    [RelayCommand]
+    private void EditProduct(ProductDto? product)
+    {
+        if (product == null) return;
+        var addVm = App.Services.GetRequiredService<AddProductViewModel>();
+        addVm.Id = product.Id;
+        addVm.Sku = product.Sku;
+        addVm.Name = product.Name;
+        addVm.Barcode = product.Barcode;
+        addVm.Description = product.Description;
+        addVm.CostPrice = product.CostPrice;
+        addVm.SellingPrice = product.SellingPrice;
+
+        addVm.OnSaveComplete = () => 
+        {
+            CurrentOverlay = null;
+            LoadProductsCommand.Execute(null);
+        };
+        addVm.OnCancel = () => CurrentOverlay = null;
+        
+        CurrentOverlay = addVm;
+    }
+
+    [RelayCommand]
+    private async Task DeleteProductAsync(ProductDto? product)
+    {
+        if (product == null) return;
+        
+        await _mediator.Send(new DeleteProductCommand(product.Id));
+        LoadProductsCommand.Execute(null);
+    }
 }

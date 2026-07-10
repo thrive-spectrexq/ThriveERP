@@ -47,4 +47,35 @@ public partial class CustomersViewModel : ViewModelBase
         
         CurrentOverlay = addVm;
     }
+
+    [RelayCommand]
+    private void EditCustomer(CustomerDto? customer)
+    {
+        if (customer == null) return;
+        var addVm = App.Services.GetRequiredService<AddCustomerViewModel>();
+        addVm.Id = customer.Id;
+        addVm.Name = customer.Name;
+        addVm.Phone = customer.Phone;
+        addVm.Email = customer.Email;
+        addVm.Address = customer.Address;
+        addVm.CreditLimit = customer.CreditLimit;
+
+        addVm.OnSaveComplete = () => 
+        {
+            CurrentOverlay = null;
+            LoadCustomersCommand.Execute(null);
+        };
+        addVm.OnCancel = () => CurrentOverlay = null;
+        
+        CurrentOverlay = addVm;
+    }
+
+    [RelayCommand]
+    private async Task DeleteCustomerAsync(CustomerDto? customer)
+    {
+        if (customer == null) return;
+        
+        await _mediator.Send(new DeleteCustomerCommand(customer.Id));
+        LoadCustomersCommand.Execute(null);
+    }
 }

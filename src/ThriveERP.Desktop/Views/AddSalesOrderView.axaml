@@ -5,18 +5,59 @@
              x:DataType="vm:AddSalesOrderViewModel">
   <Border Padding="20" Background="{DynamicResource SystemRegionBrush}" 
           BorderBrush="Gray" BorderThickness="1" CornerRadius="8"
-          HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
-    <StackPanel Spacing="10">
-      <TextBlock Text="Create Sales Order" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+          HorizontalAlignment="Center" VerticalAlignment="Center" Width="800" MaxHeight="600">
+    <Grid RowDefinitions="Auto, *, Auto">
+      <TextBlock Grid.Row="0" Text="Create Sales Order" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
       
-      <TextBox PlaceholderText="Subtotal" Text="{Binding Subtotal}" />
-      <TextBox PlaceholderText="Tax Total" Text="{Binding TaxTotal}" />
-      <TextBox PlaceholderText="Grand Total" Text="{Binding GrandTotal}" />
+      <Grid Grid.Row="1" RowDefinitions="Auto,*">
+         <Button Grid.Row="0" Content="Add Item" Command="{Binding AddItemCommand}" Background="#0D9488" Foreground="White" Margin="0,0,0,10" HorizontalAlignment="Left" Padding="10,5" CornerRadius="4"/>
+         <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="False">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Product" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding $parent[UserControl].((vm:AddSalesOrderViewModel)DataContext).AvailableProducts}" 
+                                      SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                                      DisplayMemberBinding="{Binding Name}" HorizontalAlignment="Stretch" Margin="5"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="80"/>
+                <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice}" Width="100"/>
+                <DataGridTextColumn Header="Discount" Binding="{Binding DiscountAmount}" Width="100"/>
+                <DataGridTextColumn Header="Line Total" Binding="{Binding LineTotal}" Width="100" IsReadOnly="True"/>
+                <DataGridTemplateColumn Header="Actions" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Remove" Command="{Binding $parent[UserControl].((vm:AddSalesOrderViewModel)DataContext).RemoveItemCommand}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" Margin="5" Padding="5,2"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+         </DataGrid>
+      </Grid>
 
-      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
-        <Button Content="Cancel" Command="{Binding CancelCommand}" />
-        <Button Content="Save" Command="{Binding SaveCommand}" Background="#0078D7" Foreground="White" />
-      </StackPanel>
-    </StackPanel>
+      <Grid Grid.Row="2" ColumnDefinitions="*, Auto" Margin="0,20,0,0">
+          <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="10" MinWidth="200">
+              <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="Subtotal:" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Subtotal, StringFormat={}{0:C}}" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="Tax:" FontWeight="SemiBold" Margin="0,0,10,0"/>
+                  <TextBlock Grid.Column="1" Text="{Binding TaxTotal, StringFormat={}{0:C}}" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="Grand Total:" FontWeight="Bold" FontSize="16" Margin="0,0,10,0"/>
+                  <TextBlock Grid.Column="1" Text="{Binding GrandTotal, StringFormat={}{0:C}}" FontWeight="Bold" FontSize="16" Foreground="#107C10"/>
+              </Grid>
+
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+                <Button Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Content="Save Order" Command="{Binding SaveCommand}" Background="#0078D7" Foreground="White" />
+              </StackPanel>
+          </StackPanel>
+      </Grid>
+    </Grid>
   </Border>
 </UserControl>

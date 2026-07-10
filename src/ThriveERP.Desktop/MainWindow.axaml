@@ -6,31 +6,45 @@
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         x:Class="ThriveERP.Desktop.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="ThriveERP"
-        WindowStartupLocation="CenterScreen">
+        Title="ThriveERP - Modern Enterprise Management"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource SystemRegionBrush}">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="200" PaneBackground="#2c3e50">
+    <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="250" PaneBackground="#1E293B">
         <SplitView.Pane>
-            <Grid RowDefinitions="Auto, *">
-                <TextBlock Text="ThriveERP" Foreground="White" FontSize="20" FontWeight="Bold" Margin="20,20,20,40" />
-                <ListBox Grid.Row="1" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedListItem}" Background="Transparent" Foreground="White">
+            <Grid RowDefinitions="Auto, *, Auto" Margin="0,20,0,0">
+                <StackPanel Grid.Row="0" Margin="20,0,20,30">
+                    <TextBlock Text="ThriveERP" Foreground="White" FontSize="24" FontWeight="ExtraBold" />
+                    <TextBlock Text="Business OS" Foreground="#94A3B8" FontSize="12" Margin="0,5,0,0" />
+                </StackPanel>
+                
+                <ListBox Grid.Row="1" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedListItem}" 
+                         Background="Transparent" Foreground="#E2E8F0" SelectionMode="Single">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="10" Margin="10,5">
-                                <TextBlock Text="{Binding Label}" FontSize="16" />
-                            </StackPanel>
+                            <Border Padding="15,10" CornerRadius="8" Margin="10,2">
+                                <StackPanel Orientation="Horizontal" Spacing="15">
+                                    <!-- Use a generic icon or shape for now since we don't have an icon pack installed -->
+                                    <TextBlock Text="◆" FontSize="14" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Label}" FontSize="16" VerticalAlignment="Center" FontWeight="Medium" />
+                                </StackPanel>
+                            </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+                
+                <TextBlock Grid.Row="2" Text="v1.0.0" Foreground="#64748B" FontSize="12" Margin="20" />
             </Grid>
         </SplitView.Pane>
 
         <SplitView.Content>
-            <TransitioningContentControl Content="{Binding CurrentPage}" />
+            <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}" CornerRadius="12,0,0,12" Margin="0,0,0,0" BoxShadow="0 4 10 0 #40000000">
+                <TransitioningContentControl Content="{Binding CurrentPage}" />
+            </Border>
         </SplitView.Content>
     </SplitView>
 </Window>

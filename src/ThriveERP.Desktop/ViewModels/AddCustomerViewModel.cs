@@ -8,9 +8,12 @@ using ThriveERP.Application.Features.Customers;
 
 namespace ThriveERP.Desktop.ViewModels;
 
-public partial class AddCustomerViewModel : ObservableValidator
+public partial class AddCustomerViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+
+    [ObservableProperty]
+    private Guid? _id;
 
     [ObservableProperty]
     [Required(ErrorMessage = "Name is required")]
@@ -43,23 +46,39 @@ public partial class AddCustomerViewModel : ObservableValidator
         if (HasErrors)
             return;
 
-        var command = new CreateCustomerCommand(
-            Name,
-            Phone,
-            Email,
-            Address,
-            CreditLimit,
-            true
-        );
-
         try
         {
-            await _mediator.Send(command);
+            if (Id.HasValue && Id.Value != Guid.Empty)
+            {
+                var command = new UpdateCustomerCommand(
+                    Id.Value,
+                    Name,
+                    Phone,
+                    Email,
+                    Address,
+                    CreditLimit,
+                    true
+                );
+                await _mediator.Send(command);
+            }
+            else
+            {
+                var command = new CreateCustomerCommand(
+                    Name,
+                    Phone,
+                    Email,
+                    Address,
+                    CreditLimit,
+                    true
+                );
+                await _mediator.Send(command);
+            }
+
             OnSaveComplete?.Invoke();
         }
         catch (Exception)
         {
-            // Handle error in real app
+            // TODO: Error handling
         }
     }
 
