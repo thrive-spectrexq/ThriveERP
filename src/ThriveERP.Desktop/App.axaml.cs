@@ -16,6 +16,7 @@ public partial class App : Avalonia.Application
 {
     private IHost? _host;
     public static IServiceProvider? Services { get; private set; }
+    public static string CurrentRole { get; set; } = "Admin";
 
     public override void Initialize()
     {

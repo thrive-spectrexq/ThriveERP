@@ -58,6 +58,7 @@ public partial class LoginViewModel : ViewModelBase
                 var result = await _mediator.Send(new LoginCommand(Username, Password));
                 
                 // If we get here without exception, login was successful
+                App.CurrentRole = result.RoleName;
                 OnLoginSuccess?.Invoke(result.RoleName);
             }
             else
@@ -66,10 +67,12 @@ public partial class LoginViewModel : ViewModelBase
                 await Task.Delay(1000);
                 if (Username == "admin" && Password == "admin")
                 {
+                    App.CurrentRole = "Admin";
                     OnLoginSuccess?.Invoke("Admin");
                 }
                 else if (Username == "cashier" && Password == "cashier")
                 {
+                    App.CurrentRole = "Cashier";
                     OnLoginSuccess?.Invoke("Cashier");
                 }
                 else

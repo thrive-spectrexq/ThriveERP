@@ -93,7 +93,7 @@
                 </Border>
 
                 <!-- Top Cashiers / Employee Analytics -->
-                <Border Grid.Column="0" Grid.Row="1" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="0,10,10,0" BoxShadow="0 4 15 0 #20000000">
+                <Border Grid.Column="0" Grid.Row="1" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="0,10,10,0" BoxShadow="0 4 15 0 #20000000" IsVisible="{Binding IsAdminView}">
                     <StackPanel>
                         <TextBlock Text="Top Performers (Cashiers)" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
                         <ItemsControl ItemsSource="{Binding TopCashiers}">
@@ -116,7 +116,7 @@
                 </Border>
 
                 <!-- Recent Activity -->
-                <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10,10,10,0" BoxShadow="0 4 15 0 #20000000">
+                <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10,10,10,0" BoxShadow="0 4 15 0 #20000000" IsVisible="{Binding IsAdminView}">
                     <StackPanel>
                         <TextBlock Text="Recent Activity" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
                         <ItemsControl ItemsSource="{Binding RecentActivities}">

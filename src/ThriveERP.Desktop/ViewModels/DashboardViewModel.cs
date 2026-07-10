@@ -24,6 +24,7 @@ public partial class DashboardViewModel : ViewModelBase
     [ObservableProperty] private string _inventoryItems = "0";
     [ObservableProperty] private string _overdueInvoices = "0 ($0)";
     [ObservableProperty] private string _lowStockAlerts = "0 Items";
+    [ObservableProperty] private bool _isAdminView;
 
     // --- Lists ---
     public ObservableCollection<RecentActivityItem> RecentActivities { get; } = new();
@@ -39,6 +40,7 @@ public partial class DashboardViewModel : ViewModelBase
     public DashboardViewModel(IMediator mediator)
     {
         _mediator = mediator;
+        _isAdminView = App.CurrentRole == "Admin";
         _ = LoadDashboardDataAsync();
     }
 
