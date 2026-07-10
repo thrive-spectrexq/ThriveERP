@@ -1,13 +1,14 @@
 # ThriveERP
 
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
+[![Avalonia UI](https://img.shields.io/badge/UI-Avalonia-6E40C9)](https://avaloniaui.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
 [![Status](https://img.shields.io/badge/status-pre--release-orange)](#roadmap)
 
 **ThriveERP** is an offline-first Enterprise Resource Planning (ERP) desktop application for small and medium-sized businesses.
 
-Built with **C#, .NET 9, and SQLite**, ThriveERP is a fast, reliable, single-install solution for managing inventory, sales, purchases, customers, suppliers, accounting, employees, and reporting — with zero cloud dependency and zero recurring cost.
+Built with **C#, .NET 9, Avalonia UI, and SQLite**, ThriveERP is a fast, reliable, single-install solution for managing inventory, sales, purchases, customers, suppliers, accounting, employees, and reporting — with zero cloud dependency, zero recurring cost, and native support for **Windows, macOS, and Linux**.
 
 ---
 
@@ -44,6 +45,7 @@ Built with **C#, .NET 9, and SQLite**, ThriveERP is a fast, reliable, single-ins
 | Complex, multi-week setup | Single installer, database created on first run |
 | Vendor lock-in on your data | Your data lives in a portable `.db` file you own |
 | Bloated feature sets you'll never use | Modular — enable only the modules your business needs |
+| Locked to a single OS | Avalonia UI runs natively on Windows, macOS, and Linux |
 
 ---
 
@@ -97,7 +99,8 @@ ThriveERP follows **Clean Architecture** (a modular monolith) so business logic 
 
 ```
 ┌────────────────────────────────────────────┐
-│           ThriveERP.Desktop (WPF)          │   Presentation — Views, ViewModels (MVVM)
+│      ThriveERP.Desktop (Avalonia UI)       │   Presentation — Views, ViewModels (MVVM)
+│   Runs on Windows · macOS · Linux          │
 └───────────────────┬────────────────────────┘
                      │
 ┌───────────────────▼──────────────────────────┐
@@ -121,7 +124,7 @@ ThriveERP follows **Clean Architecture** (a modular monolith) so business logic 
 └────────────────────────────────────────────  ┘
 ```
 
-**Why this matters for you:** dependencies point inward (Desktop → Application → Domain), so the Domain layer never references EF Core or WPF. That means you can swap SQLite for PostgreSQL later, or add a web front-end, without touching business logic.
+**Why this matters for you:** dependencies point inward (Desktop → Application → Domain), so the Domain layer never references EF Core or Avalonia. That means you can swap SQLite for PostgreSQL later, or add a web front-end, without touching business logic. Because the UI layer is Avalonia instead of a Windows-only framework, the same Desktop project also compiles and runs on macOS and Linux with no architectural changes.
 
 ---
 
@@ -133,7 +136,7 @@ ThriveERP follows **Clean Architecture** (a modular monolith) so business logic 
 |---|---|
 | C# | Main programming language |
 | .NET 9 | Application framework |
-| WPF | Desktop user interface |
+| Avalonia UI | Cross-platform desktop UI (Windows, macOS, Linux) |
 | MVVM (CommunityToolkit.Mvvm) | UI architecture, reduces boilerplate |
 | MediatR | CQRS — decouples UI from business logic |
 | AutoMapper | Entity ↔ DTO mapping |
@@ -168,7 +171,7 @@ ThriveERP/
 │   ├── ThriveERP.Domain/            # Entities, enums, domain rules — no dependencies
 │   ├── ThriveERP.Application/       # Use cases, CQRS handlers, DTOs, interfaces
 │   ├── ThriveERP.Infrastructure/    # EF Core, repositories, external services
-│   └── ThriveERP.Desktop/           # WPF app, Views, ViewModels
+│   └── ThriveERP.Desktop/           # Avalonia app, Views, ViewModels
 ├── database/
 │   ├── migrations/
 │   └── seed-data/
@@ -243,7 +246,7 @@ A gap in most solo ERP projects — plan for it from day one, not after v1.0:
 | Domain | Unit tests on business rules (e.g. stock can't go negative) | xUnit |
 | Application | Unit tests on CQRS handlers with mocked repositories | xUnit + Moq |
 | Infrastructure | Integration tests against a real SQLite test database | xUnit + EF Core InMemory/SQLite |
-| Desktop | Manual QA checklist per release; ViewModel unit tests where feasible | xUnit |
+| Desktop | Manual QA checklist per release (Windows/macOS/Linux); ViewModel unit tests where feasible | xUnit |
 
 Target: business-critical modules (Sales, Inventory, Accounting) should have meaningful coverage before v1.0 ships, since these touch money and stock counts.
 
@@ -254,10 +257,8 @@ Target: business-critical modules (Sales, Inventory, Accounting) should have mea
 ### Requirements
 
 * .NET 9 SDK
-* Visual Studio 2026 or later (or VS Code with C# Dev Kit)
-* Windows 10/11 (WPF is Windows-only — see note below)
-
-> **Note:** WPF ties you to Windows. If cross-platform desktop support (macOS/Linux) matters for your target customers, consider **Avalonia UI** instead of WPF now, before the UI layer grows — retrofitting later is expensive.
+* Visual Studio 2026 or later, JetBrains Rider, or VS Code with the C# Dev Kit and Avalonia extension
+* Windows 10/11, macOS 12+, or a modern Linux distribution (Avalonia UI is cross-platform, so ThriveERP is no longer tied to a single OS)
 
 ---
 
@@ -298,9 +299,9 @@ Application settings live in `appsettings.json` (Desktop project):
 
 ## Running ThriveERP
 
-From Visual Studio: **Start Debugging** (F5)
+From Visual Studio or Rider: **Start Debugging** (F5)
 
-Or from the command line:
+Or from the command line, on any supported platform:
 
 ```bash
 dotnet run --project src/ThriveERP.Desktop
@@ -315,11 +316,17 @@ On first run, ThriveERP creates `ThriveERP.db` and seeds default roles (Admin, M
 Because ThriveERP uses SQLite, backups are a single file copy.
 
 ```bash
-# Backup
+# Backup (Windows)
 copy ThriveERP.db backups/ThriveERP_2026-07-10.db
 
-# Restore
+# Backup (macOS/Linux)
+cp ThriveERP.db backups/ThriveERP_2026-07-10.db
+
+# Restore (Windows)
 copy backups/ThriveERP_2026-07-10.db ThriveERP.db
+
+# Restore (macOS/Linux)
+cp backups/ThriveERP_2026-07-10.db ThriveERP.db
 ```
 
 **Planned improvements:**
@@ -333,8 +340,8 @@ copy backups/ThriveERP_2026-07-10.db ThriveERP.db
 
 Recommended before your first real release — cheap to set up now, painful to retrofit later:
 
-* **GitHub Actions** workflow: `dotnet build` + `dotnet test` on every PR
-* Automated versioned releases (tag → build → attach installer as a GitHub Release asset)
+* **GitHub Actions** workflow: `dotnet build` + `dotnet test` on every PR, run across a build matrix (Windows, macOS, Linux) to catch platform-specific Avalonia issues early
+* Automated versioned releases (tag → build per-platform installers → attach as GitHub Release assets)
 * Optional: code coverage reporting (Coverlet + Codecov) so test gaps are visible over time
 
 ---
@@ -347,6 +354,7 @@ Recommended before your first real release — cheap to set up now, painful to r
 - [ ] Customer & supplier management
 - [ ] Sales module (POS + invoicing)
 - [ ] Basic reporting (PDF/Excel export)
+- [ ] Avalonia UI shell with Windows/macOS/Linux builds verified
 
 ### Version 2.0 — Business Depth
 - [ ] Accounting module
@@ -384,6 +392,6 @@ ThriveERP is licensed under the MIT License. See the [LICENSE](LICENSE) file for
 
 ## Vision
 
-ThriveERP aims to be a complete digital management solution for small businesses by combining simplicity, reliability, and solid desktop architecture.
+ThriveERP aims to be a complete digital management solution for small businesses by combining simplicity, reliability, and solid cross-platform desktop architecture.
 
-**Offline. Simple. Reliable. Business-ready.**
+**Offline. Simple. Reliable. Cross-platform. Business-ready.**
