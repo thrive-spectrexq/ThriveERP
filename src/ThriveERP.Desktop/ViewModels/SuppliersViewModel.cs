@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,7 +14,29 @@ public partial class SuppliersViewModel : ViewModelBase
     private readonly IMediator _mediator;
 
     [ObservableProperty]
+    private string _title = "Suppliers / Vendors";
+
+    [ObservableProperty]
     private ObservableCollection<SupplierDto> _suppliers = new();
+
+    [ObservableProperty]
+    private ObservableCollection<SupplierDto> _filteredSuppliers = new();
+
+    [ObservableProperty]
+    private SupplierDto? _selectedSupplier;
+
+    private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            if (SetProperty(ref _searchQuery, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
 
     [ObservableProperty]
     private ViewModelBase? _currentOverlay;
@@ -33,6 +56,23 @@ public partial class SuppliersViewModel : ViewModelBase
         if (_mediator == null) return;
         var suppliersList = await _mediator.Send(new GetAllSuppliersQuery());
         Suppliers = new ObservableCollection<SupplierDto>(suppliersList);
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            FilteredSuppliers = new ObservableCollection<SupplierDto>(Suppliers);
+        }
+        else
+        {
+            var q = SearchQuery.ToLower();
+            FilteredSuppliers = new ObservableCollection<SupplierDto>(
+                Suppliers.Where(s => s.Name.ToLower().Contains(q) || 
+                                    (s.Email != null && s.Email.ToLower().Contains(q)) ||
+                                    (s.Phone != null && s.Phone.ToLower().Contains(q))));
+        }
     }
 
     [RelayCommand]
@@ -56,15 +96,16 @@ public partial class SuppliersViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void EditSupplier(SupplierDto supplier)
+    private void EditSupplier(SupplierDto? supplier)
     {
-        if (supplier == null) return;
+        var target = supplier ?? SelectedSupplier;
+        if (target == null) return;
         var addVm = App.Services.GetRequiredService<AddSupplierViewModel>();
-        addVm.Id = supplier.Id;
-        addVm.Name = supplier.Name;
-        addVm.Phone = supplier.Phone;
-        addVm.Email = supplier.Email;
-        addVm.Address = supplier.Address;
+        addVm.Id = target.Id;
+        addVm.Name = target.Name;
+        addVm.Phone = target.Phone;
+        addVm.Email = target.Email;
+        addVm.Address = target.Address;
 
         addVm.OnSaveComplete = () => 
         {
@@ -77,10 +118,12 @@ public partial class SuppliersViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task DeleteSupplierAsync(SupplierDto supplier)
+    private async Task DeleteSupplierAsync(SupplierDto? supplier)
     {
-        if (supplier == null || _mediator == null) return;
-        await _mediator.Send(new DeleteSupplierCommand(supplier.Id));
+        var target = supplier ?? SelectedSupplier;
+        if (target == null || _mediator == null) return;
+        await _mediator.Send(new DeleteSupplierCommand(target.Id));
+        SelectedSupplier = null;
         await LoadSuppliersAsync();
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,10 +15,29 @@ public partial class CustomersViewModel : ViewModelBase
     private readonly IMediator _mediator;
 
     [ObservableProperty]
-    private string _title = "Customers Management";
+    private string _title = "Customers Profile";
 
     [ObservableProperty]
     private ObservableCollection<CustomerDto> _customers = new();
+
+    [ObservableProperty]
+    private ObservableCollection<CustomerDto> _filteredCustomers = new();
+
+    [ObservableProperty]
+    private CustomerDto? _selectedCustomer;
+
+    private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            if (SetProperty(ref _searchQuery, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
 
     [ObservableProperty]
     private ViewModelBase? _currentOverlay;
@@ -32,6 +53,23 @@ public partial class CustomersViewModel : ViewModelBase
     {
         var result = await _mediator.Send(new GetAllCustomersQuery());
         Customers = new ObservableCollection<CustomerDto>(result);
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            FilteredCustomers = new ObservableCollection<CustomerDto>(Customers);
+        }
+        else
+        {
+            var q = SearchQuery.ToLower();
+            FilteredCustomers = new ObservableCollection<CustomerDto>(
+                Customers.Where(c => c.Name.ToLower().Contains(q) || 
+                                     (c.Email != null && c.Email.ToLower().Contains(q)) ||
+                                     (c.Phone != null && c.Phone.Contains(q))));
+        }
     }
 
     [RelayCommand]
@@ -51,14 +89,16 @@ public partial class CustomersViewModel : ViewModelBase
     [RelayCommand]
     private void EditCustomer(CustomerDto? customer)
     {
-        if (customer == null) return;
+        var target = customer ?? SelectedCustomer;
+        if (target == null) return;
+
         var addVm = App.Services.GetRequiredService<AddCustomerViewModel>();
-        addVm.Id = customer.Id;
-        addVm.Name = customer.Name;
-        addVm.Phone = customer.Phone;
-        addVm.Email = customer.Email;
-        addVm.Address = customer.Address;
-        addVm.CreditLimit = customer.CreditLimit;
+        addVm.Id = target.Id;
+        addVm.Name = target.Name;
+        addVm.Phone = target.Phone;
+        addVm.Email = target.Email;
+        addVm.Address = target.Address;
+        addVm.CreditLimit = target.CreditLimit;
 
         addVm.OnSaveComplete = () => 
         {
@@ -73,9 +113,11 @@ public partial class CustomersViewModel : ViewModelBase
     [RelayCommand]
     private async Task DeleteCustomerAsync(CustomerDto? customer)
     {
-        if (customer == null) return;
+        var target = customer ?? SelectedCustomer;
+        if (target == null) return;
         
-        await _mediator.Send(new DeleteCustomerCommand(customer.Id));
+        await _mediator.Send(new DeleteCustomerCommand(target.Id));
+        SelectedCustomer = null;
         LoadCustomersCommand.Execute(null);
     }
 }

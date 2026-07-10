@@ -1,10 +1,12 @@
 namespace ThriveERP.Infrastructure;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ThriveERP.Application.Common.Interfaces;
 using ThriveERP.Infrastructure.Data;
 using ThriveERP.Infrastructure.Repositories;
+using ThriveERP.Infrastructure.Services;
 
 public static class DependencyInjection
 {
@@ -24,6 +26,15 @@ public static class DependencyInjection
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
         services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
+        
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IAccountRepository, AccountRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
+        
+        services.AddTransient<IInvoiceGeneratorService, InvoiceGeneratorService>();
+        services.AddTransient<IBackupService, BackupService>();
+        services.AddTransient<IBarcodeLabelService, BarcodeLabelService>();
+        
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

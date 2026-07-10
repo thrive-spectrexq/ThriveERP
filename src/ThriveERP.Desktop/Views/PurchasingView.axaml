@@ -1,34 +1,100 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ThriveERP.Desktop.Views.PurchasingView"
              x:DataType="vm:PurchasingViewModel">
     
-    <Grid Name="RootGrid">
+    <Grid Name="RootGrid" Background="Transparent">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="0,0,0,20">
-          <TextBlock Text="Purchase Orders" FontSize="28" FontWeight="SemiBold"/>
-          <Button Content="New Purchase Order" Command="{Binding ShowAddOrderCommand}" Background="#3B82F6" Foreground="White" Padding="15,8" CornerRadius="4"/>
-          <Button Content="Refresh" Command="{Binding LoadOrdersCommand}" Background="#E5E7EB" Foreground="Black" Padding="15,8" CornerRadius="4"/>
-        </StackPanel>
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,10">
+          <Grid ColumnDefinitions="Auto, *, Auto">
+            <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+              <TextBox PlaceholderText="Search orders..." Text="{Binding SearchQuery}" Width="250" VerticalAlignment="Center" CornerRadius="4"/>
+              <Button Content="New Purchase Order" Command="{Binding ShowAddOrderCommand}" Background="#0284C7" Foreground="White" Padding="15,8" CornerRadius="4" FontWeight="SemiBold"/>
+              <Button Content="Refresh" Command="{Binding LoadOrdersCommand}" Background="Transparent" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,8" CornerRadius="4"/>
+            </StackPanel>
+          </Grid>
+        </Border>
 
-        <DataGrid ItemsSource="{Binding PurchaseOrders}" 
-                  AutoGenerateColumns="False" 
-                  IsReadOnly="True"
-                  GridLinesVisibility="All"
-                  BorderThickness="1"
-                  BorderBrush="Gray">
-          <DataGrid.Columns>
-            <DataGridTextColumn Header="Order #" Binding="{Binding OrderNumber}" Width="150"/>
-            <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="200" />
-            <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="150" />
-            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
-            <DataGridTextColumn Header="Total" Binding="{Binding GrandTotal, StringFormat={}{0:C}}" Width="120" />
-            <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat={}{0:d}}" Width="100" />
-          </DataGrid.Columns>
-        </DataGrid>
+        <!-- Main Split View -->
+        <Grid ColumnDefinitions="*, 4, 350">
+          
+          <!-- Left: DataGrid -->
+          <Border Grid.Column="0" Background="Transparent" Margin="10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+            <DataGrid ItemsSource="{Binding FilteredOrders}" 
+                      SelectedItem="{Binding SelectedOrder}"
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      RowBackground="Transparent">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Order #" Binding="{Binding OrderNumber}" Width="120"/>
+                <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="200" />
+                <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="150" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='{}{0:d}'}" Width="120" />
+                <DataGridTextColumn Header="Total" Binding="{Binding GrandTotal, StringFormat={}{0:C}}" Width="*" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+
+          <!-- Grid Splitter -->
+          <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
+
+          <!-- Right: Detail Panel -->
+          <Border Grid.Column="2" Background="Transparent" Margin="10,10,10,10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+            <Panel>
+              <!-- Empty State -->
+              <TextBlock IsVisible="{Binding SelectedOrder, Converter={x:Static ObjectConverters.IsNull}}"
+                         Text="Select a purchase order to view details"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14"/>
+              
+              <!-- Detail Content -->
+              <Grid RowDefinitions="Auto, *" IsVisible="{Binding SelectedOrder, Converter={x:Static ObjectConverters.IsNotNull}}">
+                
+                <!-- Header -->
+                <Border Grid.Row="0" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15">
+                  <StackPanel>
+                    <TextBlock Text="{Binding SelectedOrder.OrderNumber}" FontSize="20" FontWeight="Bold"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                      <Border Background="#DBEAFE" CornerRadius="12" Padding="8,2">
+                        <TextBlock Text="{Binding SelectedOrder.Status}" FontSize="12" FontWeight="SemiBold" Foreground="#1D4ED8"/>
+                      </Border>
+                      <TextBlock Text="{Binding SelectedOrder.OrderDate, StringFormat='{}{0:g}'}" FontSize="14" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding SelectedOrder.SupplierName}" FontSize="16" FontWeight="SemiBold" Margin="0,10,0,0"/>
+                  </StackPanel>
+                </Border>
+
+                <!-- Tabs -->
+                <TabControl Grid.Row="1" Margin="5">
+                  <!-- Tab 1: Line Items -->
+                  <TabItem Header="Items">
+                    <Grid>
+                      <TextBlock Text="Line items will appear here." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                    </Grid>
+                  </TabItem>
+                  
+                  <!-- Tab 2: Receiving & Invoices -->
+                  <TabItem Header="Receiving/Invoices">
+                    <Grid>
+                      <TextBlock Text="Receipts and invoices history will appear here" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                    </Grid>
+                  </TabItem>
+                </TabControl>
+              </Grid>
+            </Panel>
+          </Border>
+        </Grid>
       </DockPanel>
 
+      <!-- Overlay for Add/Edit -->
       <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}" ZIndex="100">
         <ContentControl Content="{Binding CurrentOverlay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Border>

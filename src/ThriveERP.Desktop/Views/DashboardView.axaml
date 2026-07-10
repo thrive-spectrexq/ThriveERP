@@ -16,28 +16,28 @@
                 <!-- Card 1 -->
                 <Border Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10" BoxShadow="0 4 15 0 #20000000">
                     <StackPanel>
-                        <TextBlock Text="Total Revenue" Foreground="#64748B" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock Text="Total Revenue" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding TotalRevenue}" FontSize="24" FontWeight="Bold" Margin="0,10,0,0" Foreground="#10B981"/>
                     </StackPanel>
                 </Border>
                 <!-- Card 2 -->
                 <Border Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10" BoxShadow="0 4 15 0 #20000000">
                     <StackPanel>
-                        <TextBlock Text="Active Orders" Foreground="#64748B" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock Text="Active Orders" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding ActiveOrders}" FontSize="24" FontWeight="Bold" Margin="0,10,0,0" Foreground="#3B82F6"/>
                     </StackPanel>
                 </Border>
                 <!-- Card 3 -->
                 <Border Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10" BoxShadow="0 4 15 0 #20000000">
                     <StackPanel>
-                        <TextBlock Text="Total Customers" Foreground="#64748B" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock Text="Total Customers" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding TotalCustomers}" FontSize="24" FontWeight="Bold" Margin="0,10,0,0" Foreground="#F59E0B"/>
                     </StackPanel>
                 </Border>
                 <!-- Card 4 -->
                 <Border Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10" BoxShadow="0 4 15 0 #20000000">
                     <StackPanel>
-                        <TextBlock Text="Inventory Items" Foreground="#64748B" FontSize="14" FontWeight="SemiBold"/>
+                        <TextBlock Text="Inventory Items" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14" FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding InventoryItems}" FontSize="24" FontWeight="Bold" Margin="0,10,0,0" Foreground="#8B5CF6"/>
                     </StackPanel>
                 </Border>

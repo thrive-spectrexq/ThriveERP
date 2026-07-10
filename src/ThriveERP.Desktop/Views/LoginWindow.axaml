@@ -1,0 +1,57 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        Width="1000" Height="600"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        ExtendClientAreaToDecorationsHint="True"
+        x:Class="ThriveERP.Desktop.Views.LoginWindow"
+        x:DataType="vm:LoginViewModel"
+        Title="Login - ThriveERP">
+
+  <Design.DataContext>
+    <vm:LoginViewModel/>
+  </Design.DataContext>
+
+  <Grid ColumnDefinitions="*, *">
+    
+    <!-- Left Side: Branding / Imagery -->
+    <Border Grid.Column="0" Background="#2563EB">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20" Margin="40">
+        <TextBlock Text="◆" FontSize="60" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+        <TextBlock Text="ThriveERP" FontSize="36" FontWeight="ExtraBold" Foreground="#FFFFFF" HorizontalAlignment="Center"/>
+        <TextBlock Text="Offline-first enterprise resource planning, designed for scale and reliability." 
+                   Foreground="#DBEAFE" FontSize="16" TextAlignment="Center" TextWrapping="Wrap"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Right Side: Login Form -->
+    <Border Grid.Column="1" Background="{DynamicResource SystemRegionBrush}">
+      <StackPanel VerticalAlignment="Center" Margin="60" Spacing="20">
+        <TextBlock Text="Welcome Back" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        <TextBlock Text="Please sign in to your account." FontSize="14" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" Margin="0,0,0,10"/>
+        
+        <StackPanel Spacing="5">
+          <TextBlock Text="Username" FontWeight="SemiBold" FontSize="14"/>
+          <TextBox Text="{Binding Username}" PlaceholderText="Enter your username" FontSize="16" Padding="12" CornerRadius="6"/>
+        </StackPanel>
+
+        <StackPanel Spacing="5" Margin="0,10,0,0">
+          <TextBlock Text="Password" FontWeight="SemiBold" FontSize="14"/>
+          <TextBox Text="{Binding Password}" PasswordChar="•" PlaceholderText="Enter your password" FontSize="16" Padding="12" CornerRadius="6"/>
+        </StackPanel>
+
+        <TextBlock Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" Foreground="#EF4444" FontWeight="Medium" Margin="0,5"/>
+
+        <Button Content="Sign In" Command="{Binding LoginCommand}" IsEnabled="{Binding !IsLoading}"
+                Background="#2563EB" Foreground="White" FontSize="16" FontWeight="Bold" 
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Padding="15" CornerRadius="6" Margin="0,20,0,0">
+        </Button>
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

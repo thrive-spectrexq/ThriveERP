@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,7 +14,29 @@ public partial class PurchasingViewModel : ViewModelBase
     private readonly IMediator _mediator;
 
     [ObservableProperty]
+    private string _title = "Purchasing / POs";
+
+    [ObservableProperty]
     private ObservableCollection<PurchaseOrderDto> _purchaseOrders = new();
+
+    [ObservableProperty]
+    private ObservableCollection<PurchaseOrderDto> _filteredOrders = new();
+
+    [ObservableProperty]
+    private PurchaseOrderDto? _selectedOrder;
+
+    private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            if (SetProperty(ref _searchQuery, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
 
     [ObservableProperty]
     private ViewModelBase? _currentOverlay;
@@ -32,6 +55,23 @@ public partial class PurchasingViewModel : ViewModelBase
         if (_mediator == null) return;
         var orders = await _mediator.Send(new GetAllPurchaseOrdersQuery());
         PurchaseOrders = new ObservableCollection<PurchaseOrderDto>(orders);
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            FilteredOrders = new ObservableCollection<PurchaseOrderDto>(PurchaseOrders);
+        }
+        else
+        {
+            var q = SearchQuery.ToLower();
+            FilteredOrders = new ObservableCollection<PurchaseOrderDto>(
+                PurchaseOrders.Where(o => o.OrderNumber.ToLower().Contains(q) || 
+                                          o.SupplierName.ToLower().Contains(q) ||
+                                          o.Status.ToLower().Contains(q)));
+        }
     }
 
     [RelayCommand]

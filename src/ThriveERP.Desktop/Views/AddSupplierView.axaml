@@ -6,11 +6,14 @@
              Width="500" Background="{DynamicResource SurfaceBrush}" CornerRadius="8">
   <StackPanel Margin="20" Spacing="15">
     <TextBlock Text="Add Supplier" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
-    
-    <TextBox Text="{Binding Name}" PlaceholderText="Name *" />
-    <TextBox Text="{Binding Phone}" PlaceholderText="Phone" />
-    <TextBox Text="{Binding Email}" PlaceholderText="Email" />
-    <TextBox Text="{Binding Address}" PlaceholderText="Address" AcceptsReturn="True" Height="60"/>
+        <TextBox PlaceholderText="Name *" Text="{Binding Name}" />
+      
+      <Grid ColumnDefinitions="*,*">
+        <TextBox Grid.Column="0" PlaceholderText="Phone" Text="{Binding Phone}" Margin="0,0,5,0"/>
+        <TextBox Grid.Column="1" PlaceholderText="Email" Text="{Binding Email}" Margin="5,0,0,0"/>
+      </Grid>
+      
+      <TextBox PlaceholderText="Address" Text="{Binding Address}" AcceptsReturn="True" Height="60"/>
     
     <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,20,0,0">
       <Button Content="Cancel" Command="{Binding CancelCommand}" Background="#E5E7EB" Foreground="Black" Padding="15,8" CornerRadius="4"/>

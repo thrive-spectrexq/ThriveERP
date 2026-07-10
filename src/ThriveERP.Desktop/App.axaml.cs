@@ -50,6 +50,7 @@ public partial class App : Avalonia.Application
                 services.AddTransient<AddSupplierViewModel>();
                 services.AddTransient<PurchasingViewModel>();
                 services.AddTransient<AddPurchaseOrderViewModel>();
+                services.AddTransient<AccountingViewModel>();
                 services.AddTransient<SettingsViewModel>();
             })
             .Build();
@@ -65,10 +66,11 @@ public partial class App : Avalonia.Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // BindingPlugins.DataValidators.RemoveAt(0); // Removed for Avalonia compatibility
-            desktop.MainWindow = Services.GetRequiredService<MainWindow>();
+            desktop.MainWindow = new Views.LoginWindow
+            {
+                DataContext = new ViewModels.LoginViewModel(),
+            };
         }
-
         base.OnFrameworkInitializationCompleted();
     }
 }

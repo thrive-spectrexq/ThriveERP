@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:ThriveERP.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="ThriveERP.Desktop.Views.AccountingView"
+             x:DataType="vm:AccountingViewModel"
+             Background="{DynamicResource SurfaceBackground}">
+
+  <Grid RowDefinitions="Auto,*">
+    <!-- Header -->
+    <Border Grid.Row="0" Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0">
+          <TextBlock Text="Accounting" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,5"/>
+          <TextBlock Text="Manage accounts and expenses" FontSize="14" Foreground="{DynamicResource TextSecondary}"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Button Content="Refresh" Command="{Binding LoadDataCommand}" Background="#3B82F6" Foreground="White" FontWeight="SemiBold" Padding="15,8" CornerRadius="4"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Content -->
+    <TabControl Grid.Row="1" Margin="0">
+      <!-- Accounts Tab -->
+      <TabItem Header="Chart of Accounts">
+        <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,10,0,0">
+          <DataGrid ItemsSource="{Binding Accounts}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0" RowBackground="Transparent">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+              <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="150" />
+              <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat={}{0:C}}" Width="150" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Border>
+      </TabItem>
+
+      <!-- Expenses Tab -->
+      <TabItem Header="Expenses">
+        <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,10,0,0">
+          <DataGrid ItemsSource="{Binding Expenses}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0" RowBackground="Transparent">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Date" Binding="{Binding ExpenseDate}" Width="150" />
+              <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="150" />
+              <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+              <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:C}}" Width="150" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </Border>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</UserControl>

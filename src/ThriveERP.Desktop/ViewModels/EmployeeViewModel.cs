@@ -14,7 +14,29 @@ public partial class EmployeeViewModel : ViewModelBase
     private readonly IMediator _mediator;
 
     [ObservableProperty]
+    private string _title = "Human Resources";
+
+    [ObservableProperty]
     private ObservableCollection<EmployeeDto> _employees = new();
+
+    [ObservableProperty]
+    private ObservableCollection<EmployeeDto> _filteredEmployees = new();
+
+    [ObservableProperty]
+    private EmployeeDto? _selectedEmployee;
+
+    private string _searchQuery = string.Empty;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set
+        {
+            if (SetProperty(ref _searchQuery, value))
+            {
+                ApplyFilter();
+            }
+        }
+    }
 
     [ObservableProperty]
     private bool _isAddingEmployee;
@@ -43,6 +65,23 @@ public partial class EmployeeViewModel : ViewModelBase
     {
         var result = await _mediator.Send(new GetAllEmployeesQuery());
         Employees = new ObservableCollection<EmployeeDto>(result);
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            FilteredEmployees = new ObservableCollection<EmployeeDto>(Employees);
+        }
+        else
+        {
+            var q = SearchQuery.ToLower();
+            FilteredEmployees = new ObservableCollection<EmployeeDto>(
+                Employees.Where(e => e.FullName.ToLower().Contains(q) || 
+                                    (e.Email != null && e.Email.ToLower().Contains(q)) ||
+                                    (e.Position != null && e.Position.ToLower().Contains(q))));
+        }
     }
 
     [RelayCommand]

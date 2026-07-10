@@ -4,59 +4,105 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
              xmlns:views="using:ThriveERP.Desktop.Views"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ThriveERP.Desktop.Views.EmployeeView"
              x:DataType="vm:EmployeeViewModel">
-    <Grid>
-        <DockPanel>
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="20" Spacing="20">
-                <TextBlock Text="HR / Employees" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
-                <Button Content="Add Employee" Command="{Binding ShowAddEmployeeCommand}" Classes="accent" VerticalAlignment="Center" Padding="15,8"/>
-                <Button Content="Refresh" Command="{Binding LoadEmployeesCommand}" VerticalAlignment="Center" Padding="15,8"/>
+    <Grid Name="RootGrid" Background="Transparent">
+      <DockPanel>
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,10">
+          <Grid ColumnDefinitions="Auto, *, Auto">
+            <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+              <TextBox PlaceholderText="Search employees..." Text="{Binding SearchQuery}" Width="250" VerticalAlignment="Center" CornerRadius="4"/>
+              <Button Content="Add Employee" Command="{Binding ShowAddEmployeeCommand}" Background="#0284C7" Foreground="White" Padding="15,8" CornerRadius="4" FontWeight="SemiBold"/>
+              <Button Content="Refresh" Command="{Binding LoadEmployeesCommand}" Background="Transparent" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,8" CornerRadius="4"/>
             </StackPanel>
-
-            <TabControl Margin="20,0,20,20">
-                <!-- Tab 1: Employee Directory -->
-                <TabItem Header="Employee Directory">
-                    <DataGrid Margin="0,15,0,0" ItemsSource="{Binding Employees}"
-                              AutoGenerateColumns="False" IsReadOnly="True"
-                              GridLinesVisibility="All"
-                              BorderThickness="1" BorderBrush="#E5E7EB">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="2*"/>
-                            <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="*"/>
-                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                            <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="*"/>
-                            <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate}" Width="*"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </TabItem>
-                
-                <!-- Tab 2: Departments -->
-                <TabItem Header="Departments">
-                    <Grid>
-                        <TextBlock Text="Department management features coming soon." 
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#94A3B8"/>
-                    </Grid>
-                </TabItem>
-                
-                <!-- Tab 3: Time & Attendance -->
-                <TabItem Header="Time &amp; Attendance">
-                    <Grid>
-                        <TextBlock Text="Timesheets and attendance logs coming soon." 
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#94A3B8"/>
-                    </Grid>
-                </TabItem>
-            </TabControl>
-        </DockPanel>
-
-        <!-- Overlay for Add Employee -->
-        <Border Background="#80000000" IsVisible="{Binding IsAddingEmployee}">
-            <Border Background="White" CornerRadius="8" Padding="20"
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Width="500">
-                <views:AddEmployeeView DataContext="{Binding AddEmployeeViewModel}" />
-            </Border>
+          </Grid>
         </Border>
+
+        <!-- Main Split View -->
+        <Grid ColumnDefinitions="*, 4, 350">
+          
+          <!-- Left: DataGrid -->
+          <Border Grid.Column="0" Background="Transparent" Margin="10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+            <DataGrid ItemsSource="{Binding FilteredEmployees}" 
+                      SelectedItem="{Binding SelectedEmployee}"
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      RowBackground="Transparent">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="2*"/>
+                <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="*"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="*"/>
+                <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate, StringFormat='{}{0:d}'}" Width="*"/>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+
+          <!-- Grid Splitter -->
+          <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
+
+          <!-- Right: Detail Panel -->
+          <Border Grid.Column="2" Background="Transparent" Margin="10,10,10,10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+            <Panel>
+              <!-- Empty State -->
+              <TextBlock IsVisible="{Binding SelectedEmployee, Converter={x:Static ObjectConverters.IsNull}}"
+                         Text="Select an employee to view details"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14"/>
+              
+              <!-- Detail Content -->
+              <Grid RowDefinitions="Auto, *" IsVisible="{Binding SelectedEmployee, Converter={x:Static ObjectConverters.IsNotNull}}">
+                
+                <!-- Header -->
+                <Border Grid.Row="0" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15">
+                  <StackPanel>
+                    <TextBlock Text="{Binding SelectedEmployee.FullName}" FontSize="20" FontWeight="Bold"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                      <Border Background="#DCFCE7" CornerRadius="12" Padding="8,2">
+                        <TextBlock Text="{Binding SelectedEmployee.Position}" FontSize="12" FontWeight="SemiBold" Foreground="#166534"/>
+                      </Border>
+                      <TextBlock Text="{Binding SelectedEmployee.HireDate, StringFormat='{}{0:d}'}" FontSize="14" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+                      <TextBlock Text="✉" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                      <TextBlock Text="{Binding SelectedEmployee.Email}" FontSize="14"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                      <TextBlock Text="☎" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                      <TextBlock Text="{Binding SelectedEmployee.Phone}" FontSize="14"/>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+                <!-- Tabs -->
+                <TabControl Grid.Row="1" Margin="5">
+                  <TabItem Header="Time &amp; Attendance">
+                    <Grid>
+                      <TextBlock Text="Timesheets and attendance logs coming soon." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                    </Grid>
+                  </TabItem>
+                  <TabItem Header="Departments">
+                    <Grid>
+                      <TextBlock Text="Department management features coming soon." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                    </Grid>
+                  </TabItem>
+                </TabControl>
+              </Grid>
+            </Panel>
+          </Border>
+        </Grid>
+      </DockPanel>
+
+      <!-- Overlay for Add Employee -->
+      <Border Background="#80000000" IsVisible="{Binding IsAddingEmployee}" ZIndex="100">
+          <Border Background="{DynamicResource SystemRegionBrush}" CornerRadius="8" Padding="20"
+                  HorizontalAlignment="Center" VerticalAlignment="Center" Width="500">
+              <views:AddEmployeeView DataContext="{Binding AddEmployeeViewModel}" />
+          </Border>
+      </Border>
     </Grid>
 </UserControl>

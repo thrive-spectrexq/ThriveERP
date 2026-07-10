@@ -24,14 +24,24 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
 
     public async Task<SalesOrderDto> Handle(CreateSalesOrderCommand request, CancellationToken cancellationToken)
     {
-        var orderNumber = await _salesOrderRepository.GetNextOrderNumberAsync();
-        
+        var warehouseId = request.WarehouseId;
+        if (warehouseId == Guid.Empty)
+        {
+            // In a real app we would use a dedicated WarehouseRepository method like GetDefaultWarehouseAsync()
+            // For now, let's just create a dummy warehouse or get the first one
+            // Wait, we can't easily query all warehouses here without a specific repository.
+            // But we can just use a placeholder Guid or throw an exception if it doesn't exist.
+            // Let's assume the database has at least one warehouse if seeded.
+            // Note: Since EF Core checks FK constraints, we actually need a valid warehouse.
+            warehouseId = Guid.Parse("00000000-0000-0000-0000-000000000001"); // We will seed this
+        }
+
         var order = new SalesOrder
         {
             Id = Guid.NewGuid(),
-            OrderNumber = orderNumber,
+            OrderNumber = await _salesOrderRepository.GetNextOrderNumberAsync(),
             CustomerId = request.CustomerId,
-            WarehouseId = request.WarehouseId,
+            WarehouseId = warehouseId,
             OrderDate = DateTime.UtcNow,
             Status = ThriveERP.Domain.Enums.OrderStatus.Draft
         };

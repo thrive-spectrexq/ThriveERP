@@ -27,10 +27,11 @@
           <DataGridTextColumn Header="Brand" Binding="{Binding BrandName}" Width="150" />
           <DataGridTextColumn Header="Cost Price" Binding="{Binding CostPrice, StringFormat={}{0:C}}" Width="100" />
           <DataGridTextColumn Header="Selling Price" Binding="{Binding SellingPrice, StringFormat={}{0:C}}" Width="100" />
-          <DataGridTemplateColumn Header="Actions" Width="150">
+          <DataGridTemplateColumn Header="Actions" Width="220">
             <DataGridTemplateColumn.CellTemplate>
               <DataTemplate>
                 <StackPanel Orientation="Horizontal" Spacing="5" Margin="5">
+                  <Button Content="Print" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).PrintLabelCommand}" CommandParameter="{Binding}" Background="#10B981" Foreground="White" Padding="10,5"/>
                   <Button Content="Edit" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).EditProductCommand}" CommandParameter="{Binding}" Background="#3B82F6" Foreground="White" Padding="10,5"/>
                   <Button Content="Delete" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).DeleteProductCommand}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" Padding="10,5"/>
                 </StackPanel>

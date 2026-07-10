@@ -1,26 +1,92 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ThriveERP.Desktop.Views.InventoryView"
              x:DataType="vm:InventoryViewModel">
     
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="15" Margin="0,0,0,20">
-            <TextBlock Text="Inventory" FontSize="28" FontWeight="SemiBold"/>
-            <Button Content="Refresh" Command="{Binding LoadStockLevelsCommand}" Background="#3B82F6" Foreground="White" Padding="15,8" CornerRadius="4"/>
-        </StackPanel>
+    <Grid Name="RootGrid" Background="Transparent">
+      <DockPanel>
+        <!-- Toolbar -->
+        <Border DockPanel.Dock="Top" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,10">
+          <Grid ColumnDefinitions="Auto, *, Auto">
+            <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+              <TextBox PlaceholderText="Search inventory..." Text="{Binding SearchQuery}" Width="250" VerticalAlignment="Center" CornerRadius="4"/>
+              <Button Content="Refresh" Command="{Binding LoadStockLevelsCommand}" Background="Transparent" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,8" CornerRadius="4"/>
+            </StackPanel>
+          </Grid>
+        </Border>
 
-        <DataGrid ItemsSource="{Binding StockLevels}" 
-                  AutoGenerateColumns="False" 
-                  IsReadOnly="True"
-                  GridLinesVisibility="All"
-                  BorderThickness="1"
-                  BorderBrush="Gray">
-            <DataGrid.Columns>
+        <!-- Main Split View -->
+        <Grid ColumnDefinitions="*, 4, 350">
+          
+          <!-- Left: DataGrid -->
+          <Border Grid.Column="0" Background="Transparent" Margin="10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+            <DataGrid ItemsSource="{Binding FilteredStockLevels}" 
+                      SelectedItem="{Binding SelectedStockLevel}"
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      BorderThickness="0"
+                      RowBackground="Transparent">
+              <DataGrid.Columns>
                 <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
                 <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="200"/>
                 <DataGridTextColumn Header="Quantity On Hand" Binding="{Binding QuantityOnHand}" Width="150"/>
-            </DataGrid.Columns>
-        </DataGrid>
-    </DockPanel>
+              </DataGrid.Columns>
+            </DataGrid>
+          </Border>
+
+          <!-- Grid Splitter -->
+          <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
+
+          <!-- Right: Detail Panel -->
+          <Border Grid.Column="2" Background="Transparent" Margin="10,10,10,10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+            <Panel>
+              <!-- Empty State -->
+              <TextBlock IsVisible="{Binding SelectedStockLevel, Converter={x:Static ObjectConverters.IsNull}}"
+                         Text="Select a product to view stock details"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14"/>
+              
+              <!-- Detail Content -->
+              <Grid RowDefinitions="Auto, *" IsVisible="{Binding SelectedStockLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
+                
+                <!-- Header -->
+                <Border Grid.Row="0" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15">
+                  <StackPanel>
+                    <TextBlock Text="{Binding SelectedStockLevel.ProductName}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                      <Border Background="#FEF08A" CornerRadius="12" Padding="8,2">
+                        <TextBlock Text="{Binding SelectedStockLevel.WarehouseName}" FontSize="12" FontWeight="SemiBold" Foreground="#854D0E"/>
+                      </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,15,0,0">
+                      <TextBlock Text="Quantity On Hand:" FontSize="14" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" VerticalAlignment="Center"/>
+                      <TextBlock Text="{Binding SelectedStockLevel.QuantityOnHand}" FontSize="18" FontWeight="Bold" Foreground="#0284C7"/>
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+                <!-- Tabs -->
+                <TabControl Grid.Row="1" Margin="5">
+                  <TabItem Header="Stock Movements">
+                    <Grid>
+                      <TextBlock Text="Recent stock movements (in/out) will appear here." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                    </Grid>
+                  </TabItem>
+                  <TabItem Header="Batches">
+                    <Grid>
+                      <TextBlock Text="Batch numbers and expiry dates will appear here." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
+                    </Grid>
+                  </TabItem>
+                </TabControl>
+              </Grid>
+            </Panel>
+          </Border>
+        </Grid>
+      </DockPanel>
+    </Grid>
 </UserControl>

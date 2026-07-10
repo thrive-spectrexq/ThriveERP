@@ -10,8 +10,12 @@
       <TextBlock Text="Add New Customer" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
       
       <TextBox PlaceholderText="Name *" Text="{Binding Name}" />
-      <TextBox PlaceholderText="Phone" Text="{Binding Phone}" />
-      <TextBox PlaceholderText="Email" Text="{Binding Email}" />
+      
+      <Grid ColumnDefinitions="*,*">
+        <TextBox Grid.Column="0" PlaceholderText="Phone" Text="{Binding Phone}" Margin="0,0,5,0"/>
+        <TextBox Grid.Column="1" PlaceholderText="Email" Text="{Binding Email}" Margin="5,0,0,0"/>
+      </Grid>
+      
       <TextBox PlaceholderText="Address" Text="{Binding Address}" AcceptsReturn="True" Height="60"/>
       <TextBox PlaceholderText="Credit Limit" Text="{Binding CreditLimit}" />
 
