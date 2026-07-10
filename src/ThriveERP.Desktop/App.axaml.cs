@@ -38,8 +38,11 @@ public partial class App : Avalonia.Application
                 
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<ProductsViewModel>();
+                services.AddTransient<AddProductViewModel>();
                 services.AddTransient<SalesViewModel>();
+                services.AddTransient<AddSalesOrderViewModel>();
                 services.AddTransient<CustomersViewModel>();
+                services.AddTransient<AddCustomerViewModel>();
                 services.AddTransient<SettingsViewModel>();
             })
             .Build();

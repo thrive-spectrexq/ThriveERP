@@ -6,7 +6,34 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ThriveERP.Desktop.Views.ProductsView"
              x:DataType="vm:ProductsViewModel">
-  <Grid>
-    <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
-  </Grid>
+  <Panel>
+    <DockPanel Margin="20">
+      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,20">
+        <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+        <Button Content="Refresh" Command="{Binding LoadProductsCommand}" Margin="20,0,0,0" VerticalAlignment="Center"/>
+        <Button Content="Add Product" Command="{Binding ShowAddProductCommand}" Background="#107C10" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <DataGrid ItemsSource="{Binding Products}" 
+                AutoGenerateColumns="False" 
+                IsReadOnly="True"
+                GridLinesVisibility="All"
+                BorderThickness="1"
+                BorderBrush="Gray">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="SKU" Binding="{Binding Sku}"/>
+          <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+          <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}"/>
+          <DataGridTextColumn Header="Brand" Binding="{Binding BrandName}"/>
+          <DataGridTextColumn Header="Cost Price" Binding="{Binding CostPrice}"/>
+          <DataGridTextColumn Header="Selling Price" Binding="{Binding SellingPrice}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+
+    <!-- Overlay -->
+    <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <ContentControl Content="{Binding CurrentOverlay}" />
+    </Border>
+  </Panel>
 </UserControl>

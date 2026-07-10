@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             x:Class="ThriveERP.Desktop.Views.AddSalesOrderView"
+             x:DataType="vm:AddSalesOrderViewModel">
+  <Border Padding="20" Background="{DynamicResource SystemRegionBrush}" 
+          BorderBrush="Gray" BorderThickness="1" CornerRadius="8"
+          HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+    <StackPanel Spacing="10">
+      <TextBlock Text="Create Sales Order" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+      
+      <TextBox PlaceholderText="Subtotal" Text="{Binding Subtotal}" />
+      <TextBox PlaceholderText="Tax Total" Text="{Binding TaxTotal}" />
+      <TextBox PlaceholderText="Grand Total" Text="{Binding GrandTotal}" />
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+        <Button Content="Cancel" Command="{Binding CancelCommand}" />
+        <Button Content="Save" Command="{Binding SaveCommand}" Background="#0078D7" Foreground="White" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

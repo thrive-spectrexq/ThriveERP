@@ -6,7 +6,34 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ThriveERP.Desktop.Views.SalesView"
              x:DataType="vm:SalesViewModel">
-  <Grid>
-    <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
-  </Grid>
+  <Panel>
+    <DockPanel Margin="20">
+      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,20">
+        <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+        <Button Content="Refresh" Command="{Binding LoadSalesOrdersCommand}" Margin="20,0,0,0" VerticalAlignment="Center"/>
+        <Button Content="Create Order" Command="{Binding ShowAddSalesOrderCommand}" Background="#107C10" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <DataGrid ItemsSource="{Binding SalesOrders}" 
+                AutoGenerateColumns="False" 
+                IsReadOnly="True"
+                GridLinesVisibility="All"
+                BorderThickness="1"
+                BorderBrush="Gray">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Order Number" Binding="{Binding OrderNumber}"/>
+          <DataGridTextColumn Header="Order Date" Binding="{Binding OrderDate}"/>
+          <DataGridTextColumn Header="Status" Binding="{Binding Status}"/>
+          <DataGridTextColumn Header="Subtotal" Binding="{Binding Subtotal}"/>
+          <DataGridTextColumn Header="Tax Total" Binding="{Binding TaxTotal}"/>
+          <DataGridTextColumn Header="Grand Total" Binding="{Binding GrandTotal}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+
+    <!-- Overlay -->
+    <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <ContentControl Content="{Binding CurrentOverlay}" />
+    </Border>
+  </Panel>
 </UserControl>

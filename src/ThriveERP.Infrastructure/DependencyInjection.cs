@@ -10,8 +10,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
     {
+        var dbPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "thrive_erp.db");
         services.AddDbContext<ThriveErpDbContext>(options =>
-            options.UseSqlite(config.GetConnectionString("DefaultConnection")));
+            options.UseSqlite($"Data Source={dbPath}"));
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProductRepository, ProductRepository>();

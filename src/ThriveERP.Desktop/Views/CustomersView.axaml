@@ -6,7 +6,33 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="ThriveERP.Desktop.Views.CustomersView"
              x:DataType="vm:CustomersViewModel">
-  <Grid>
-    <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24"/>
-  </Grid>
+  <Panel>
+    <DockPanel Margin="20">
+      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,20">
+        <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+        <Button Content="Refresh" Command="{Binding LoadCustomersCommand}" Margin="20,0,0,0" VerticalAlignment="Center"/>
+        <Button Content="Add Customer" Command="{Binding ShowAddCustomerCommand}" Background="#107C10" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
+      </StackPanel>
+
+      <DataGrid ItemsSource="{Binding Customers}" 
+                AutoGenerateColumns="False" 
+                IsReadOnly="True"
+                GridLinesVisibility="All"
+                BorderThickness="1"
+                BorderBrush="Gray">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+          <DataGridTextColumn Header="Phone" Binding="{Binding Phone}"/>
+          <DataGridTextColumn Header="Email" Binding="{Binding Email}"/>
+          <DataGridTextColumn Header="Credit Limit" Binding="{Binding CreditLimit}"/>
+          <DataGridTextColumn Header="Current Balance" Binding="{Binding CurrentBalance}"/>
+        </DataGrid.Columns>
+      </DataGrid>
+    </DockPanel>
+
+    <!-- Overlay -->
+    <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <ContentControl Content="{Binding CurrentOverlay}" />
+    </Border>
+  </Panel>
 </UserControl>

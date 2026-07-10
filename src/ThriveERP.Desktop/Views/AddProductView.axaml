@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
+             x:Class="ThriveERP.Desktop.Views.AddProductView"
+             x:DataType="vm:AddProductViewModel">
+  <Border Padding="20" Background="{DynamicResource SystemRegionBrush}" 
+          BorderBrush="Gray" BorderThickness="1" CornerRadius="8"
+          HorizontalAlignment="Center" VerticalAlignment="Center" Width="450">
+    <StackPanel Spacing="10">
+      <TextBlock Text="Add New Product" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+      
+      <TextBox Watermark="SKU *" Text="{Binding Sku}" />
+      <TextBox Watermark="Name *" Text="{Binding Name}" />
+      <TextBox Watermark="Barcode" Text="{Binding Barcode}" />
+      <TextBox Watermark="Description" Text="{Binding Description}" AcceptsReturn="True" Height="60"/>
+      
+      <Grid ColumnDefinitions="*,*">
+        <TextBox Grid.Column="0" Watermark="Cost Price" Text="{Binding CostPrice}" Margin="0,0,5,0"/>
+        <TextBox Grid.Column="1" Watermark="Selling Price" Text="{Binding SellingPrice}" Margin="5,0,0,0"/>
+      </Grid>
+      
+      <CheckBox Content="Track Batches" IsChecked="{Binding TrackBatches}" />
+      <TextBox Watermark="Reorder Threshold" Text="{Binding ReorderThreshold}" />
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
+        <Button Content="Cancel" Command="{Binding CancelCommand}" />
+        <Button Content="Save" Command="{Binding SaveCommand}" Background="#0078D7" Foreground="White" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>
