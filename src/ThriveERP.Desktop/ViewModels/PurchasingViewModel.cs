@@ -11,7 +11,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class PurchasingViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _title = "Purchasing / POs";
@@ -77,7 +77,7 @@ public partial class PurchasingViewModel : ViewModelBase
     [RelayCommand]
     private void ShowAddOrder()
     {
-        var addVm = App.Services.GetRequiredService<AddPurchaseOrderViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddPurchaseOrderViewModel>();
         addVm.OnSaveComplete = () => 
         {
             CurrentOverlay = null;

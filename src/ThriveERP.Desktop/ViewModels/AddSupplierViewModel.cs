@@ -10,7 +10,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class AddSupplierViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private Guid? _id;

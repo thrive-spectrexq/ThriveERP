@@ -53,7 +53,7 @@ public partial class SaleItemViewModel : ObservableObject
 
 public partial class AddSalesOrderViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private ObservableCollection<ProductDto> _availableProducts = new();

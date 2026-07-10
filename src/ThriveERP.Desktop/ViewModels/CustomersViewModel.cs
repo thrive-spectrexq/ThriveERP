@@ -12,7 +12,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class CustomersViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _title = "Customers Profile";
@@ -75,7 +75,7 @@ public partial class CustomersViewModel : ViewModelBase
     [RelayCommand]
     private void ShowAddCustomer()
     {
-        var addVm = App.Services.GetRequiredService<AddCustomerViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddCustomerViewModel>();
         addVm.OnSaveComplete = () => 
         {
             CurrentOverlay = null;
@@ -92,7 +92,7 @@ public partial class CustomersViewModel : ViewModelBase
         var target = customer ?? SelectedCustomer;
         if (target == null) return;
 
-        var addVm = App.Services.GetRequiredService<AddCustomerViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddCustomerViewModel>();
         addVm.Id = target.Id;
         addVm.Name = target.Name;
         addVm.Phone = target.Phone;

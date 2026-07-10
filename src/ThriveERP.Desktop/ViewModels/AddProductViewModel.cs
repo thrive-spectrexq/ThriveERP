@@ -10,7 +10,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class AddProductViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
     
     [ObservableProperty]
     [Required(ErrorMessage = "SKU is required")]

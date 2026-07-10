@@ -10,7 +10,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class InventoryViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _title = "Inventory Management";

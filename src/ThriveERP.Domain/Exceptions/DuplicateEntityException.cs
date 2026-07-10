@@ -5,8 +5,8 @@ namespace ThriveERP.Domain.Exceptions;
 /// </summary>
 public class DuplicateEntityException : Exception
 {
-    public string EntityName { get; }
-    public string ConflictingField { get; }
+    public string? EntityName { get; }
+    public string? ConflictingField { get; }
 
     public DuplicateEntityException(string entityName, string conflictingField)
         : base($"A '{entityName}' with the same '{conflictingField}' already exists.")

@@ -15,7 +15,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class AddPurchaseOrderViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
     private readonly IWarehouseRepository _warehouseRepository;
 
     [ObservableProperty]

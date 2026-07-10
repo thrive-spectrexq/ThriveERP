@@ -9,7 +9,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     public SalesViewModel SalesViewModel { get; }
     public EmployeeViewModel EmployeeViewModel { get; }
@@ -21,7 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _currentUserName = "Admin User";
 
     [ObservableProperty]
-    private ViewModelBase _currentView;
+    private ViewModelBase _currentView = null!;
 
     public ObservableCollection<ListItemTemplate> Items { get; } = new();
 

@@ -9,7 +9,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class AccountingViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private ObservableCollection<AccountDto> _accounts = new();

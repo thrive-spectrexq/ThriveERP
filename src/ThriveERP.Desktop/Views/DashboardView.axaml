@@ -43,20 +43,96 @@
                 </Border>
             </UniformGrid>
 
-            <!-- Recent Activity -->
-            <TextBlock Text="Recent Activity" FontSize="20" FontWeight="Bold" Margin="10,0,0,10"/>
-            <Border Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10,0,10,0" BoxShadow="0 4 15 0 #20000000">
-                <ItemsControl ItemsSource="{Binding RecentActivities}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="*, Auto" Margin="0,10">
-                                <TextBlock Grid.Column="0" Text="{Binding Description}" FontSize="14" FontWeight="Medium" />
-                                <TextBlock Grid.Column="1" Text="{Binding Time}" FontSize="12" Foreground="#94A3B8" />
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
+            <!-- Dashboard Body Grid -->
+            <Grid ColumnDefinitions="*, *, *" RowDefinitions="*,*" Margin="10,0" x:Name="DashboardBodyGrid">
+                
+                <!-- Financial Graphs (Sales by Category) -->
+                <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="0,0,10,10" BoxShadow="0 4 15 0 #20000000">
+                    <StackPanel>
+                        <TextBlock Text="Sales by Category (YTD)" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <ItemsControl ItemsSource="{Binding SalesData}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="100, *, 80" Margin="0,8">
+                                        <TextBlock Grid.Column="0" Text="{Binding Category}" VerticalAlignment="Center" FontWeight="Medium"/>
+                                        <Border Grid.Column="1" Height="20" Background="{Binding ColorHex}" Width="{Binding BarWidth}" HorizontalAlignment="Left" CornerRadius="4"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Amount, StringFormat={}{0:C0}}" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Inventory Alerts -->
+                <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10,0,0,0" BoxShadow="0 4 15 0 #20000000">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,15">
+                            <TextBlock Text="⚠️" FontSize="18"/>
+                            <TextBlock Text="Low Stock Alerts" FontSize="18" FontWeight="Bold"/>
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding LowStockItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding ProductName}" FontWeight="Bold" Foreground="#991B1B" TextWrapping="Wrap"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,5,0,0">
+                                                <TextBlock Text="Stock:" Foreground="#B91C1C" FontSize="12"/>
+                                                <TextBlock Text="{Binding QuantityOnHand}" FontWeight="Bold" Foreground="#B91C1C" FontSize="12"/>
+                                                <TextBlock Text="/" Foreground="#B91C1C" FontSize="12"/>
+                                                <TextBlock Text="{Binding ReorderThreshold}" Foreground="#B91C1C" FontSize="12"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="No immediate alerts" IsVisible="{Binding !LowStockItems.Count}" FontStyle="Italic" Foreground="#94A3B8"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Top Cashiers / Employee Analytics -->
+                <Border Grid.Column="0" Grid.Row="1" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="0,10,10,0" BoxShadow="0 4 15 0 #20000000">
+                    <StackPanel>
+                        <TextBlock Text="Top Performers (Cashiers)" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <ItemsControl ItemsSource="{Binding TopCashiers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto, *, Auto" Margin="0,8">
+                                        <Border Grid.Column="0" Width="36" Height="36" CornerRadius="18" Background="#E2E8F0" Margin="0,0,12,0">
+                                            <TextBlock Text="👤" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding CashierName}" FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding SalesCount, StringFormat='{}{0} Orders'}" FontSize="12" Foreground="#64748B"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Text="{Binding TotalRevenue, StringFormat={}{0:C0}}" FontWeight="Bold" Foreground="#10B981" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Recent Activity -->
+                <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource SystemRegionBrush}" CornerRadius="12" Padding="20" Margin="10,10,10,0" BoxShadow="0 4 15 0 #20000000">
+                    <StackPanel>
+                        <TextBlock Text="Recent Activity" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <ItemsControl ItemsSource="{Binding RecentActivities}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*, Auto" Margin="0,8">
+                                        <TextBlock Grid.Column="0" Text="{Binding Description}" FontSize="14" FontWeight="Medium" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Time}" FontSize="12" Foreground="#94A3B8" VerticalAlignment="Top" Margin="10,0,0,0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

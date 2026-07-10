@@ -12,7 +12,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class ProductsViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _title = "Products Catalog";
@@ -115,7 +115,7 @@ public partial class ProductsViewModel : ViewModelBase
     [RelayCommand]
     private void ShowAddProduct()
     {
-        var addVm = App.Services.GetRequiredService<AddProductViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddProductViewModel>();
         addVm.OnSaveComplete = () => 
         {
             CurrentOverlay = null;
@@ -132,7 +132,7 @@ public partial class ProductsViewModel : ViewModelBase
         var target = product ?? SelectedProduct;
         if (target == null) return;
 
-        var addVm = App.Services.GetRequiredService<AddProductViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddProductViewModel>();
         addVm.Id = target.Id;
         addVm.Sku = target.Sku;
         addVm.Name = target.Name;

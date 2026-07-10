@@ -5,8 +5,8 @@ namespace ThriveERP.Domain.Exceptions;
 /// </summary>
 public class InvalidOrderStateTransitionException : Exception
 {
-    public string CurrentStatus { get; }
-    public string AttemptedStatus { get; }
+    public string? CurrentStatus { get; }
+    public string? AttemptedStatus { get; }
 
     public InvalidOrderStateTransitionException(string currentStatus, string attemptedStatus)
         : base($"Cannot transition order from '{currentStatus}' to '{attemptedStatus}'.")

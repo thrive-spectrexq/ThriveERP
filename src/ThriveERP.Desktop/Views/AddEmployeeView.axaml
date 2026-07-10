@@ -11,22 +11,22 @@
 
         <StackPanel Spacing="5">
             <TextBlock Text="Full Name *"/>
-            <TextBox Text="{Binding FullName}" Watermark="e.g. Jane Doe"/>
+            <TextBox Text="{Binding FullName}" PlaceholderText="e.g. Jane Doe"/>
         </StackPanel>
 
         <StackPanel Spacing="5">
             <TextBlock Text="Position"/>
-            <TextBox Text="{Binding Position}" Watermark="e.g. Sales Manager"/>
+            <TextBox Text="{Binding Position}" PlaceholderText="e.g. Sales Manager"/>
         </StackPanel>
         
         <Grid ColumnDefinitions="*,*">
             <StackPanel Grid.Column="0" Spacing="5" Margin="0,0,10,0">
                 <TextBlock Text="Email"/>
-                <TextBox Text="{Binding Email}" Watermark="e.g. jane@company.com"/>
+                <TextBox Text="{Binding Email}" PlaceholderText="e.g. jane@company.com"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="5">
                 <TextBlock Text="Phone"/>
-                <TextBox Text="{Binding Phone}" Watermark="e.g. 555-1234"/>
+                <TextBox Text="{Binding Phone}" PlaceholderText="e.g. 555-1234"/>
             </StackPanel>
         </Grid>
 

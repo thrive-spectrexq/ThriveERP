@@ -5,7 +5,7 @@ namespace ThriveERP.Domain.Exceptions;
 /// </summary>
 public class EntityNotFoundException : Exception
 {
-    public string EntityName { get; }
+    public string? EntityName { get; }
     public Guid EntityId { get; }
 
     public EntityNotFoundException(string entityName, Guid entityId)

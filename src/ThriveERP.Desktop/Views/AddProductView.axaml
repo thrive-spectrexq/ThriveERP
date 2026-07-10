@@ -9,18 +9,18 @@
     <StackPanel Spacing="10">
       <TextBlock Text="Add New Product" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
       
-      <TextBox Watermark="SKU *" Text="{Binding Sku}" />
-      <TextBox Watermark="Name *" Text="{Binding Name}" />
-      <TextBox Watermark="Barcode" Text="{Binding Barcode}" />
-      <TextBox Watermark="Description" Text="{Binding Description}" AcceptsReturn="True" Height="60"/>
+      <TextBox PlaceholderText="SKU *" Text="{Binding Sku}" />
+      <TextBox PlaceholderText="Name *" Text="{Binding Name}" />
+      <TextBox PlaceholderText="Barcode" Text="{Binding Barcode}" />
+      <TextBox PlaceholderText="Description" Text="{Binding Description}" AcceptsReturn="True" Height="60"/>
       
       <Grid ColumnDefinitions="*,*">
-        <TextBox Grid.Column="0" Watermark="Cost Price" Text="{Binding CostPrice}" Margin="0,0,5,0"/>
-        <TextBox Grid.Column="1" Watermark="Selling Price" Text="{Binding SellingPrice}" Margin="5,0,0,0"/>
+        <TextBox Grid.Column="0" PlaceholderText="Cost Price" Text="{Binding CostPrice}" Margin="0,0,5,0"/>
+        <TextBox Grid.Column="1" PlaceholderText="Selling Price" Text="{Binding SellingPrice}" Margin="5,0,0,0"/>
       </Grid>
       
       <CheckBox Content="Track Batches" IsChecked="{Binding TrackBatches}" />
-      <TextBox Watermark="Reorder Threshold" Text="{Binding ReorderThreshold}" />
+      <TextBox PlaceholderText="Reorder Threshold" Text="{Binding ReorderThreshold}" />
 
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
         <Button Content="Cancel" Command="{Binding CancelCommand}" />

@@ -11,7 +11,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class SuppliersViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _title = "Suppliers / Vendors";
@@ -78,7 +78,7 @@ public partial class SuppliersViewModel : ViewModelBase
     [RelayCommand]
     private void ShowAddSupplier()
     {
-        var addVm = App.Services.GetRequiredService<AddSupplierViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddSupplierViewModel>();
         addVm.Id = null;
         addVm.Name = "";
         addVm.Phone = "";
@@ -100,7 +100,7 @@ public partial class SuppliersViewModel : ViewModelBase
     {
         var target = supplier ?? SelectedSupplier;
         if (target == null) return;
-        var addVm = App.Services.GetRequiredService<AddSupplierViewModel>();
+        var addVm = App.Services!.GetRequiredService<AddSupplierViewModel>();
         addVm.Id = target.Id;
         addVm.Name = target.Name;
         addVm.Phone = target.Phone;

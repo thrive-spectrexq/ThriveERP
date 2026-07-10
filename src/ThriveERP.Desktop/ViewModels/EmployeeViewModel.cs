@@ -11,7 +11,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class EmployeeViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _title = "Human Resources";

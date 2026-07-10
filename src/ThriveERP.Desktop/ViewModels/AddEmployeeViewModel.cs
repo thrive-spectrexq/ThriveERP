@@ -9,7 +9,7 @@ namespace ThriveERP.Desktop.ViewModels;
 
 public partial class AddEmployeeViewModel : ViewModelBase
 {
-    private readonly IMediator _mediator;
+    private readonly IMediator _mediator = null!;
 
     [ObservableProperty]
     private string _fullName = string.Empty;
