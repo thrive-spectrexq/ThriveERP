@@ -15,18 +15,39 @@
                 <Button Content="Refresh" Command="{Binding LoadEmployeesCommand}" VerticalAlignment="Center" Padding="15,8"/>
             </StackPanel>
 
-            <DataGrid Margin="20,0,20,20" ItemsSource="{Binding Employees}"
-                      AutoGenerateColumns="False" IsReadOnly="True"
-                      GridLinesVisibility="All"
-                      BorderThickness="1" BorderBrush="#E5E7EB">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="2*"/>
-                    <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="*"/>
-                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                    <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="*"/>
-                    <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate}" Width="*"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <TabControl Margin="20,0,20,20">
+                <!-- Tab 1: Employee Directory -->
+                <TabItem Header="Employee Directory">
+                    <DataGrid Margin="0,15,0,0" ItemsSource="{Binding Employees}"
+                              AutoGenerateColumns="False" IsReadOnly="True"
+                              GridLinesVisibility="All"
+                              BorderThickness="1" BorderBrush="#E5E7EB">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="2*"/>
+                            <DataGridTextColumn Header="Position" Binding="{Binding Position}" Width="*"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                            <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="*"/>
+                            <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+                
+                <!-- Tab 2: Departments -->
+                <TabItem Header="Departments">
+                    <Grid>
+                        <TextBlock Text="Department management features coming soon." 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#94A3B8"/>
+                    </Grid>
+                </TabItem>
+                
+                <!-- Tab 3: Time & Attendance -->
+                <TabItem Header="Time &amp; Attendance">
+                    <Grid>
+                        <TextBlock Text="Timesheets and attendance logs coming soon." 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#94A3B8"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </DockPanel>
 
         <!-- Overlay for Add Employee -->
