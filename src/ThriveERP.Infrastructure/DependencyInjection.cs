@@ -12,9 +12,25 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
     {
-        var dbPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "thrive_erp.db");
+        var dbProvider = config["DatabaseProvider"] ?? "Sqlite";
+
         services.AddDbContext<ThriveErpDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}"));
+        {
+            switch (dbProvider.ToLowerInvariant())
+            {
+                case "sqlserver":
+                    options.UseSqlServer(config.GetConnectionString("SqlServerConnection"));
+                    break;
+                case "postgres":
+                    options.UseNpgsql(config.GetConnectionString("PostgresConnection"));
+                    break;
+                case "sqlite":
+                default:
+                    var dbPath = System.IO.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "thrive_erp.db");
+                    options.UseSqlite($"Data Source={dbPath}");
+                    break;
+            }
+        });
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IProductRepository, ProductRepository>();

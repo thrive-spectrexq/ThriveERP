@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using ThriveERP.Application.Features.Products;
 using ThriveERP.Application.Features.Sales;
+using ThriveERP.Application.Features.Customers;
 
 namespace ThriveERP.Desktop.ViewModels;
 
@@ -58,6 +59,12 @@ public partial class AddSalesOrderViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<ProductDto> _availableProducts = new();
 
+    [ObservableProperty]
+    private ObservableCollection<CustomerDto> _availableCustomers = new();
+
+    [ObservableProperty]
+    private CustomerDto? _selectedCustomer;
+
     public ObservableCollection<SaleItemViewModel> Items { get; } = new();
 
     [ObservableProperty]
@@ -75,15 +82,18 @@ public partial class AddSalesOrderViewModel : ViewModelBase
     public AddSalesOrderViewModel(IMediator mediator)
     {
         _mediator = mediator;
-        LoadProductsCommand.Execute(null);
+        LoadDataCommand.Execute(null);
         Items.CollectionChanged += (s, e) => CalculateTotals();
     }
 
     [RelayCommand]
-    private async Task LoadProductsAsync()
+    private async Task LoadDataAsync()
     {
         var products = await _mediator.Send(new GetAllProductsQuery());
         AvailableProducts = new ObservableCollection<ProductDto>(products);
+
+        var customers = await _mediator.Send(new ThriveERP.Application.Features.Customers.GetAllCustomersQuery());
+        AvailableCustomers = new ObservableCollection<CustomerDto>(customers);
     }
 
     [RelayCommand]
@@ -125,7 +135,7 @@ public partial class AddSalesOrderViewModel : ViewModelBase
         if (!dtoList.Any()) return; // Must have at least 1 valid item
 
         var command = new CreateSalesOrderCommand(
-            null,
+            SelectedCustomer?.Id,
             warehouseId,
             dtoList
         );

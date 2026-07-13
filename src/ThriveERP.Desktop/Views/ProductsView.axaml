@@ -10,11 +10,12 @@
     <DockPanel Margin="20">
       <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,20">
         <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+        <TextBox Text="{Binding SearchQuery}" PlaceholderText="Search products..." Width="300" Margin="20,0,0,0" VerticalAlignment="Center"/>
         <Button Content="Refresh" Command="{Binding LoadProductsCommand}" Margin="20,0,0,0" VerticalAlignment="Center"/>
         <Button Content="Add Product" Command="{Binding ShowAddProductCommand}" Background="#107C10" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
       </StackPanel>
 
-      <DataGrid ItemsSource="{Binding Products}" 
+      <DataGrid ItemsSource="{Binding FilteredProducts}" 
                 AutoGenerateColumns="False" 
                 IsReadOnly="True"
                 GridLinesVisibility="All"

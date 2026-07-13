@@ -12,12 +12,21 @@ using ThriveERP.Domain.Enums;
 public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCommand, SalesOrderDto>
 {
     private readonly ISalesOrderRepository _salesOrderRepository;
+    private readonly IStockLevelRepository _stockLevelRepository;
+    private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public CreateSalesOrderCommandHandler(ISalesOrderRepository repository, IUnitOfWork unitOfWork, IMapper mapper)
+    public CreateSalesOrderCommandHandler(
+        ISalesOrderRepository repository, 
+        IStockLevelRepository stockLevelRepository,
+        ICustomerRepository customerRepository,
+        IUnitOfWork unitOfWork, 
+        IMapper mapper)
     {
         _salesOrderRepository = repository;
+        _stockLevelRepository = stockLevelRepository;
+        _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -27,12 +36,6 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
         var warehouseId = request.WarehouseId;
         if (warehouseId == Guid.Empty)
         {
-            // In a real app we would use a dedicated WarehouseRepository method like GetDefaultWarehouseAsync()
-            // For now, let's just create a dummy warehouse or get the first one
-            // Wait, we can't easily query all warehouses here without a specific repository.
-            // But we can just use a placeholder Guid or throw an exception if it doesn't exist.
-            // Let's assume the database has at least one warehouse if seeded.
-            // Note: Since EF Core checks FK constraints, we actually need a valid warehouse.
             warehouseId = Guid.Parse("00000000-0000-0000-0000-000000000001"); // We will seed this
         }
 
@@ -62,11 +65,33 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
                 DiscountAmount = itemDto.DiscountAmount,
                 LineTotal = lineTotal
             });
+
+            // Deduct inventory
+            var stockLevel = await _stockLevelRepository.GetByProductAndWarehouseAsync(itemDto.ProductId, warehouseId);
+            if (stockLevel != null)
+            {
+                stockLevel.QuantityOnHand -= itemDto.Quantity;
+                _stockLevelRepository.Update(stockLevel);
+            }
         }
 
         order.Subtotal = subtotal;
         order.TaxTotal = 0; // Configurable tax later
         order.GrandTotal = subtotal + order.TaxTotal;
+
+        // Auto-submit the order since it's from POS
+        order.Status = ThriveERP.Domain.Enums.OrderStatus.Submitted;
+
+        // Update customer balance if applicable
+        if (order.CustomerId.HasValue)
+        {
+            var customer = await _customerRepository.GetByIdAsync(order.CustomerId.Value, cancellationToken);
+            if (customer != null)
+            {
+                customer.CurrentBalance += order.GrandTotal;
+                _customerRepository.Update(customer);
+            }
+        }
 
         await _salesOrderRepository.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
