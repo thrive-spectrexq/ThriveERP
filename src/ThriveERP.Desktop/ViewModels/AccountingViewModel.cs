@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using ThriveERP.Application.Features.Accounting;
@@ -20,10 +21,18 @@ public partial class AccountingViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private bool _isAddingExpense;
+
+    [ObservableProperty]
+    private AddExpenseViewModel? _addExpenseViewModel;
+
+    public AccountingViewModel() { } // designer
+
     public AccountingViewModel(IMediator mediator)
     {
         _mediator = mediator;
-        LoadDataAsync().ConfigureAwait(false);
+        LoadDataCommand.Execute(null);
     }
 
     [RelayCommand]
@@ -44,5 +53,23 @@ public partial class AccountingViewModel : ViewModelBase
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private void ShowAddExpense()
+    {
+        var vm = App.Services!.GetRequiredService<AddExpenseViewModel>();
+        vm.OnSaveComplete = () =>
+        {
+            IsAddingExpense = false;
+            LoadDataCommand.Execute(null);
+        };
+        vm.OnCancel = () =>
+        {
+            IsAddingExpense = false;
+        };
+        
+        AddExpenseViewModel = vm;
+        IsAddingExpense = true;
     }
 }
