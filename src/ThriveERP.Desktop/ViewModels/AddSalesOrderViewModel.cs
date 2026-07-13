@@ -79,9 +79,12 @@ public partial class AddSalesOrderViewModel : ViewModelBase
     public Action? OnSaveComplete { get; set; }
     public Action? OnCancel { get; set; }
 
-    public AddSalesOrderViewModel(IMediator mediator)
+    private readonly ThriveERP.Application.Common.Interfaces.IPdfExportService _pdfService;
+
+    public AddSalesOrderViewModel(IMediator mediator, ThriveERP.Application.Common.Interfaces.IPdfExportService pdfService)
     {
         _mediator = mediator;
+        _pdfService = pdfService;
         LoadDataCommand.Execute(null);
         Items.CollectionChanged += (s, e) => CalculateTotals();
     }
@@ -142,12 +145,22 @@ public partial class AddSalesOrderViewModel : ViewModelBase
 
         try
         {
-            await _mediator.Send(command);
+            var savedOrder = await _mediator.Send(command);
+            
+            // Print Receipt automatically
+            var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName")) ?? "Thrive Inc.";
+            var downloadsPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+            var receiptPath = System.IO.Path.Combine(downloadsPath, $"Receipt_{savedOrder.OrderNumber}.pdf");
+            
+            using var stream = System.IO.File.Create(receiptPath);
+            await _pdfService.ExportReceiptAsync(stream, savedOrder, businessName);
+
             OnSaveComplete?.Invoke();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Handle error in real app
+            Console.WriteLine(ex.Message);
         }
     }
 

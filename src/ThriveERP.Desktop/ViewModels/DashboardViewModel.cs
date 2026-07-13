@@ -48,6 +48,12 @@ public partial class DashboardViewModel : ViewModelBase
     {
         if (_mediator == null) return;
 
+        var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName"));
+        if (!string.IsNullOrEmpty(businessName))
+        {
+            Title = $"{businessName} Dashboard";
+        }
+
         var salesOrders = await _mediator.Send(new GetAllSalesOrdersQuery());
         var customers = await _mediator.Send(new GetAllCustomersQuery());
         var products = await _mediator.Send(new GetAllProductsQuery());

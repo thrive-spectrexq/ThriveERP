@@ -6,29 +6,17 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using MediatR;
+using ThriveERP.Application.Features.Settings;
 
 namespace ThriveERP.Desktop.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
+    private readonly IMediator _mediator;
+
     [ObservableProperty]
     private string _title = "System Settings";
-
-    [ObservableProperty]
-    private ObservableCollection<string> _settingCategories = new()
-    {
-        "General Preferences",
-        "Company Profile",
-        "Taxes & Financials",
-        "User Management",
-        "Integrations"
-    };
-
-    [ObservableProperty]
-    private string _selectedCategory = "General Preferences";
-
-    [ObservableProperty]
-    private bool _isDarkMode = true;
 
     [ObservableProperty]
     private string _companyName = "Thrive Inc.";
@@ -37,7 +25,25 @@ public partial class SettingsViewModel : ViewModelBase
     private string _currencySymbol = "$";
 
     [ObservableProperty]
-    private string _taxRate = "15.0";
+    private bool _isDarkMode = true;
+
+    [ObservableProperty]
+    private string _statusMessage = string.Empty;
+
+    public SettingsViewModel()
+    {
+        _mediator = App.Services!.GetRequiredService<IMediator>();
+        LoadSettingsAsync().ConfigureAwait(false);
+    }
+
+    private async Task LoadSettingsAsync()
+    {
+        var companyName = await _mediator.Send(new GetSettingQuery("BusinessName"));
+        if (!string.IsNullOrEmpty(companyName))
+        {
+            CompanyName = companyName;
+        }
+    }
 
     partial void OnIsDarkModeChanged(bool value)
     {
@@ -48,9 +54,17 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void SaveSettings()
+    private async Task SaveSettingsAsync()
     {
-        // Mock save action
+        try
+        {
+            await _mediator.Send(new UpdateSettingCommand("BusinessName", CompanyName));
+            StatusMessage = "Settings saved successfully.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error saving settings: {ex.Message}";
+        }
     }
 
     [RelayCommand]
@@ -64,12 +78,11 @@ public partial class SettingsViewModel : ViewModelBase
             
             await backupService.BackupDatabaseAsync(path, "SecureP@ssw0rd123!");
             
-            // Success
-            Console.WriteLine($"Backup successful: {path}");
+            StatusMessage = $"Backup successful: {path}";
         }
         catch (System.Exception ex)
         {
-            Console.WriteLine($"Backup failed: {ex.Message}");
+            StatusMessage = $"Backup failed: {ex.Message}";
         }
     }
 }

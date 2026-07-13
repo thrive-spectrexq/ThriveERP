@@ -11,4 +11,5 @@ public interface IPdfExportService
     /// <param name="data">The data to render in the PDF.</param>
     /// <param name="ct">A cancellation token.</param>
     Task ExportAsync<T>(Stream stream, T data, CancellationToken ct = default);
+    Task ExportReceiptAsync(Stream stream, ThriveERP.Application.Features.Sales.SalesOrderDto order, string businessName, CancellationToken ct = default);
 }

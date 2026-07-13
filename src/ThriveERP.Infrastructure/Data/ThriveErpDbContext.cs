@@ -40,6 +40,7 @@ public class ThriveErpDbContext : DbContext
     public DbSet<Permission> Permissions => Set<Permission>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

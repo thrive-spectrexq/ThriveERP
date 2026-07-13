@@ -60,4 +60,54 @@ public class PdfExportService : IPdfExportService
         
         return Task.CompletedTask;
     }
+
+    public Task ExportReceiptAsync(Stream stream, ThriveERP.Application.Features.Sales.SalesOrderDto order, string businessName, CancellationToken ct = default)
+    {
+        Document.Create(container =>
+        {
+            // 80mm thermal receipt roll (approx 3.14 inches)
+            container.Page(page =>
+            {
+                page.Margin(5, Unit.Millimetre);
+                page.PageColor(Colors.White);
+                page.ContinuousSize(80, Unit.Millimetre);
+                page.DefaultTextStyle(x => x.FontSize(10).FontFamily(Fonts.Arial));
+                
+                page.Content()
+                    .Column(x =>
+                    {
+                        // Header
+                        x.Item().AlignCenter().Text(businessName).Bold().FontSize(14);
+                        x.Item().AlignCenter().Text("Receipt").FontSize(12);
+                        x.Item().PaddingTop(5).Text($"Order #: {order.OrderNumber}");
+                        x.Item().Text($"Date: {order.OrderDate:g}");
+                        x.Item().Text("--------------------------------");
+                        
+                        // Items
+                        foreach (var item in order.Items)
+                        {
+                            x.Item().Row(r =>
+                            {
+                                r.RelativeItem().Text($"{item.Quantity}x {item.ProductName}");
+                                r.ConstantItem(50).AlignRight().Text(item.LineTotal.ToString("C"));
+                            });
+                        }
+                        
+                        x.Item().Text("--------------------------------");
+                        
+                        // Totals
+                        x.Item().AlignRight().Text($"Subtotal: {order.Subtotal:C}");
+                        if (order.DiscountTotal > 0) x.Item().AlignRight().Text($"Discount: {order.DiscountTotal:C}");
+                        x.Item().AlignRight().Text($"Tax: {order.TaxTotal:C}");
+                        x.Item().AlignRight().Text($"Total: {order.GrandTotal:C}").Bold().FontSize(12);
+                        
+                        // Footer
+                        x.Item().PaddingTop(10).AlignCenter().Text("Thank you for your business!").Italic();
+                    });
+            });
+        })
+        .GeneratePdf(stream);
+        
+        return Task.CompletedTask;
+    }
 }
