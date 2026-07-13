@@ -52,6 +52,8 @@ public static class DependencyInjection
         services.AddTransient<IBarcodeLabelService, BarcodeLabelService>();
         
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddTransient<IPdfExportService, PdfExportService>();
+        services.AddTransient<IExcelExportService, ExcelExportService>();
 
         return services;
     }
