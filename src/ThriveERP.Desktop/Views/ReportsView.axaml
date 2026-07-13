@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ThriveERP.Desktop.ViewModels"
+             x:Class="ThriveERP.Desktop.Views.ReportsView"
+             x:DataType="vm:ReportsViewModel"
+             Background="{DynamicResource BackgroundBrush}">
+    
+    <Grid RowDefinitions="Auto,*" Margin="20">
+        <TextBlock Text="Reporting Dashboard" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+        
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="20">
+            <StackPanel Spacing="20">
+                
+                <TextBlock Text="Daily Sales Report" FontSize="18" FontWeight="SemiBold"/>
+                
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="Select Date:" VerticalAlignment="Center"/>
+                    <CalendarDatePicker SelectedDate="{Binding SelectedDate}"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Spacing="15">
+                    <Button Content="Generate PDF" Command="{Binding GeneratePdfCommand}" Classes="accent"/>
+                    <Button Content="Generate Excel" Command="{Binding GenerateExcelCommand}"/>
+                </StackPanel>
+                
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource AccentBrush}" Margin="0,20,0,0"/>
+                
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

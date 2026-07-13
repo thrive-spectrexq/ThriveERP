@@ -56,6 +56,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Items.Add(new ListItemTemplate(typeof(EmployeeViewModel), "HR/Employees", "AccountMultiple"));
             Items.Add(new ListItemTemplate(typeof(InventoryViewModel), "Inventory", "BoxMultiple"));
             Items.Add(new ListItemTemplate(typeof(AccountingViewModel), "Accounting", "Calculator"));
+            Items.Add(new ListItemTemplate(typeof(ReportsViewModel), "Reports", "FileChart"));
             Items.Add(new ListItemTemplate(typeof(SettingsViewModel), "Settings", "Settings"));
         }
         else if (roleName.Equals("Cashier", System.StringComparison.OrdinalIgnoreCase) || roleName.Equals("Teller", System.StringComparison.OrdinalIgnoreCase))

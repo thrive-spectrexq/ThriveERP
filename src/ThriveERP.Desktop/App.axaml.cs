@@ -52,6 +52,7 @@ public partial class App : Avalonia.Application
                 services.AddTransient<PurchasingViewModel>();
                 services.AddTransient<AddPurchaseOrderViewModel>();
                 services.AddTransient<AccountingViewModel>();
+                services.AddTransient<ReportsViewModel>();
                 services.AddTransient<SettingsViewModel>();
             })
             .Build();
