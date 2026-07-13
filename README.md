@@ -280,20 +280,25 @@ Application settings live in `appsettings.json` (Desktop project):
 
 ```json
 {
-  "Database": {
-    "ConnectionString": "Data Source=ThriveERP.db"
+  "DatabaseProvider": "Sqlite", // Options: Sqlite, SqlServer, Postgres
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=thrive_erp.db",
+    "SqlServerConnection": "Server=(localdb)\\mssqllocaldb;Database=ThriveERP;Trusted_Connection=True;MultipleActiveResultSets=true",
+    "PostgresConnection": "Host=localhost;Database=ThriveERP;Username=postgres;Password=postgres"
   },
   "Logging": {
-    "MinimumLevel": "Information",
-    "LogFilePath": "logs/thriveerp-.log"
-  },
-  "Backup": {
-    "AutoBackupEnabled": true,
-    "AutoBackupIntervalHours": 24,
-    "BackupRetentionDays": 30
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Warning"
+    }
   }
 }
 ```
+
+### Switching Databases
+ThriveERP supports multiple database providers depending on your environment:
+- **Sqlite (Default):** The simplest configuration, creating a local `thrive_erp.db` file. Great for single-computer operations.
+- **SqlServer / Postgres:** Ideal for multi-client setups where several computers on a local network need to access a central database. Update the `DatabaseProvider` field in `appsettings.json` to switch between them, and ensure the respective connection string is properly configured for your server.
 
 ---
 
@@ -349,12 +354,12 @@ Recommended before your first real release — cheap to set up now, painful to r
 ## Roadmap
 
 ### Version 1.0 — Core Foundation
-- [ ] User authentication & RBAC
-- [ ] Product & inventory management
-- [ ] Customer & supplier management
-- [ ] Sales module (POS + invoicing)
+- [x] User authentication & RBAC
+- [x] Product & inventory management
+- [x] Customer & supplier management
+- [x] Sales module (POS + invoicing)
 - [ ] Basic reporting (PDF/Excel export)
-- [ ] Avalonia UI shell with Windows/macOS/Linux builds verified
+- [x] Avalonia UI shell with Windows/macOS/Linux builds verified
 
 ### Version 2.0 — Business Depth
 - [ ] Accounting module
