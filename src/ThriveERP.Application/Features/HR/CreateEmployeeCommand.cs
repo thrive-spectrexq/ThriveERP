@@ -7,5 +7,9 @@ public record CreateEmployeeCommand(
     string? Position,
     string? Phone,
     string? Email,
-    DateOnly? HireDate
+    DateOnly? HireDate,
+    bool CreateUserAccount,
+    string? Username,
+    string? Password,
+    Guid? RoleId
 ) : IRequest<Guid>;

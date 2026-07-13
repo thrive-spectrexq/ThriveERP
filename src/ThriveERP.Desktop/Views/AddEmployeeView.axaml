@@ -35,6 +35,29 @@
             <DatePicker SelectedDate="{Binding HireDate}" HorizontalAlignment="Stretch"/>
         </StackPanel>
 
+        <CheckBox Content="Create User Account" IsChecked="{Binding CreateUserAccount}"/>
+
+        <StackPanel Spacing="10" IsVisible="{Binding CreateUserAccount}">
+            <StackPanel Spacing="5">
+                <TextBlock Text="Username *"/>
+                <TextBox Text="{Binding Username}"/>
+            </StackPanel>
+            <StackPanel Spacing="5">
+                <TextBlock Text="Password *"/>
+                <TextBox Text="{Binding Password}" PasswordChar="*"/>
+            </StackPanel>
+            <StackPanel Spacing="5">
+                <TextBlock Text="Role *"/>
+                <ComboBox ItemsSource="{Binding AvailableRoles}" SelectedItem="{Binding SelectedRole}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,20,0,0">
             <Button Content="Cancel" Command="{Binding CancelCommand}" Padding="15,8"/>
             <Button Content="Save" Command="{Binding SaveCommand}" Classes="accent" Padding="15,8"/>
