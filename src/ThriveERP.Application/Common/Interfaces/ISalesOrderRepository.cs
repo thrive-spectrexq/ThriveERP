@@ -12,4 +12,6 @@ public interface ISalesOrderRepository : IRepository<SalesOrder>
 
     /// <summary>Generates the next sequential order number.</summary>
     Task<string> GetNextOrderNumberAsync(CancellationToken ct = default);
+
+    Task<List<(string CategoryName, decimal TotalSales)>> GetSalesByCategoryAsync(CancellationToken ct = default);
 }
