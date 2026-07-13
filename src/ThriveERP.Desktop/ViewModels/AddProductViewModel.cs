@@ -44,12 +44,32 @@ public partial class AddProductViewModel : ViewModelBase
     [ObservableProperty]
     private int _reorderThreshold;
 
+    [ObservableProperty]
+    private Guid? _categoryId;
+
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<ThriveERP.Application.Features.Categories.CategoryDto> _categories = new();
+
     public Action? OnSaveComplete { get; set; }
     public Action? OnCancel { get; set; }
 
     public AddProductViewModel(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    public async Task LoadAsync()
+    {
+        try
+        {
+            var cats = await _mediator.Send(new ThriveERP.Application.Features.Categories.GetAllCategoriesQuery());
+            Categories.Clear();
+            foreach (var c in cats)
+            {
+                Categories.Add(c);
+            }
+        }
+        catch (Exception) { /* Handle error */ }
     }
 
     [RelayCommand]
@@ -69,7 +89,7 @@ public partial class AddProductViewModel : ViewModelBase
                     Barcode,
                     Name,
                     Description,
-                    null,
+                    CategoryId,
                     null,
                     CostPrice,
                     SellingPrice,
@@ -86,7 +106,7 @@ public partial class AddProductViewModel : ViewModelBase
                     Barcode,
                     Name,
                     Description,
-                    null,
+                    CategoryId,
                     null,
                     CostPrice,
                     SellingPrice,

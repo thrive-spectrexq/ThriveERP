@@ -113,9 +113,15 @@ public partial class ProductsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ShowAddProduct()
+    private async Task ShowAddProductAsync()
     {
         var addVm = App.Services!.GetRequiredService<AddProductViewModel>();
+        // Auto-generate SKU
+        addVm.Sku = $"PRD-{DateTime.Now:yyMMddHHmmss}";
+        addVm.Barcode = addVm.Sku; // Default barcode to SKU as well
+
+        await addVm.LoadAsync();
+
         addVm.OnSaveComplete = () => 
         {
             CurrentOverlay = null;
@@ -127,7 +133,7 @@ public partial class ProductsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void EditProduct(ProductDto? product)
+    private async Task EditProductAsync(ProductDto? product)
     {
         var target = product ?? SelectedProduct;
         if (target == null) return;
@@ -140,6 +146,9 @@ public partial class ProductsViewModel : ViewModelBase
         addVm.Description = target.Description;
         addVm.CostPrice = target.CostPrice;
         addVm.SellingPrice = target.SellingPrice;
+        addVm.CategoryId = target.CategoryId;
+
+        await addVm.LoadAsync();
 
         addVm.OnSaveComplete = () => 
         {

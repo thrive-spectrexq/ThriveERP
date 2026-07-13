@@ -11,12 +11,31 @@
       
       <TextBox PlaceholderText="SKU *" Text="{Binding Sku}" />
       <TextBox PlaceholderText="Name *" Text="{Binding Name}" />
+      
+      <ComboBox ItemsSource="{Binding Categories}" 
+                SelectedValue="{Binding CategoryId}" 
+                SelectedValueBinding="{Binding Id}"
+                PlaceholderText="Select Category"
+                HorizontalAlignment="Stretch">
+        <ComboBox.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+
       <TextBox PlaceholderText="Barcode" Text="{Binding Barcode}" />
       <TextBox PlaceholderText="Description" Text="{Binding Description}" AcceptsReturn="True" Height="60"/>
       
       <Grid ColumnDefinitions="*,*">
-        <TextBox Grid.Column="0" PlaceholderText="Cost Price" Text="{Binding CostPrice}" Margin="0,0,5,0"/>
-        <TextBox Grid.Column="1" PlaceholderText="Selling Price" Text="{Binding SellingPrice}" Margin="5,0,0,0"/>
+        <StackPanel Grid.Column="0" Margin="0,0,5,0">
+          <TextBlock Text="Cost Price" FontSize="12" Foreground="Gray" Margin="2,0,0,2"/>
+          <TextBox PlaceholderText="Cost Price" Text="{Binding CostPrice}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Margin="5,0,0,0">
+          <TextBlock Text="Selling Price" FontSize="12" Foreground="Gray" Margin="2,0,0,2"/>
+          <TextBox PlaceholderText="Selling Price" Text="{Binding SellingPrice}" />
+        </StackPanel>
       </Grid>
       
       <CheckBox Content="Track Batches" IsChecked="{Binding TrackBatches}" />

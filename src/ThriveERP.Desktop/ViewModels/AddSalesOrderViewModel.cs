@@ -126,8 +126,64 @@ public partial class AddSalesOrderViewModel : ViewModelBase
         GrandTotal = Subtotal + TaxTotal;
     }
 
+    [ObservableProperty]
+    private bool _showPaymentOverlay;
+
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<string> _availablePaymentMethods = new(new[] { "Cash", "Mobile Money", "Credit/Debit Card", "Store Credit" });
+
+    [ObservableProperty]
+    private string _selectedPaymentMethod = "Cash";
+
+    [ObservableProperty]
+    private decimal _amountTendered;
+
+    [ObservableProperty]
+    private decimal _changeAmount;
+
+    partial void OnAmountTenderedChanged(decimal value)
+    {
+        CalculateChange();
+    }
+
+    private void CalculateChange()
+    {
+        if (SelectedPaymentMethod == "Cash")
+        {
+            ChangeAmount = Math.Max(0, AmountTendered - GrandTotal);
+        }
+        else
+        {
+            ChangeAmount = 0;
+            AmountTendered = GrandTotal;
+        }
+    }
+
     [RelayCommand]
-    private async Task SaveAsync()
+    private void PayNow()
+    {
+        Console.WriteLine($"PayNow clicked. Items count: {Items.Count}. Valid items: {Items.Count(i => i.SelectedProduct != null)}");
+        
+        // Show overlay even if no items for debugging, but set total to 0
+        if (!Items.Any(i => i.SelectedProduct != null)) 
+        {
+            Console.WriteLine("No items selected. Proceeding anyway for debug.");
+        }
+
+        AmountTendered = GrandTotal;
+        CalculateChange();
+        ShowPaymentOverlay = true;
+        Console.WriteLine($"ShowPaymentOverlay is now {ShowPaymentOverlay}");
+    }
+
+    [RelayCommand]
+    private void CancelPayment()
+    {
+        ShowPaymentOverlay = false;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmPaymentAsync()
     {
         var warehouseId = Guid.NewGuid(); // Dummy warehouse ID for MVP
         
@@ -135,7 +191,7 @@ public partial class AddSalesOrderViewModel : ViewModelBase
                            .Select(i => new CreateSaleItemDto(i.SelectedProduct!.Id, i.Quantity, i.UnitPrice, i.DiscountAmount))
                            .ToList();
 
-        if (!dtoList.Any()) return; // Must have at least 1 valid item
+        if (!dtoList.Any()) return; 
 
         var command = new CreateSalesOrderCommand(
             SelectedCustomer?.Id,
@@ -147,7 +203,6 @@ public partial class AddSalesOrderViewModel : ViewModelBase
         {
             var savedOrder = await _mediator.Send(command);
             
-            // Print Receipt automatically
             var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName")) ?? "Thrive Inc.";
             var downloadsPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
             var receiptPath = System.IO.Path.Combine(downloadsPath, $"Receipt_{savedOrder.OrderNumber}.pdf");
@@ -155,11 +210,23 @@ public partial class AddSalesOrderViewModel : ViewModelBase
             using var stream = System.IO.File.Create(receiptPath);
             await _pdfService.ExportReceiptAsync(stream, savedOrder, businessName);
 
+            // Close overlay and open the PDF automatically using standard process
+            ShowPaymentOverlay = false;
             OnSaveComplete?.Invoke();
+            
+            try 
+            {
+                // On Windows, this will open the default PDF viewer which allows the user to print
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = receiptPath,
+                    UseShellExecute = true
+                });
+            }
+            catch { /* Ignore if it fails to open */ }
         }
         catch (Exception ex)
         {
-            // Handle error in real app
             Console.WriteLine(ex.Message);
         }
     }

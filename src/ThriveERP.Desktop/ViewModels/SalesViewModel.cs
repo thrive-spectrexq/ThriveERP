@@ -30,12 +30,28 @@ public partial class SalesViewModel : ViewModelBase
     private string _searchQuery = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<ProductDto> _posProducts = new();
+    private bool _showPaymentOverlay;
     
-    private ObservableCollection<ProductDto> _allProducts = new();
+    [ObservableProperty]
+    private bool _showReturnOverlay;
+
+    [ObservableProperty]
+    private SaleItemDto? _selectedSaleItemForReturn;
+
+    [ObservableProperty]
+    private decimal _returnQuantity;
+
+    [ObservableProperty]
+    private string _returnReason = string.Empty;
+    [ObservableProperty]
+    private ObservableCollection<ProductDto> _posProducts = new();
 
     [ObservableProperty]
     private ObservableCollection<CartItemViewModel> _cartItems = new();
+
+    private ObservableCollection<ProductDto> _allProducts = new();
+    
+    public ObservableCollection<SaleItemDto> SelectedOrderItems { get; } = new();
 
     [ObservableProperty]
     private decimal _subtotal;
@@ -168,14 +184,58 @@ public partial class SalesViewModel : ViewModelBase
         CalculateTotals();
     }
 
+    [ObservableProperty]
+    private System.Collections.ObjectModel.ObservableCollection<string> _availablePaymentMethods = new(new[] { "Cash", "Mobile Money", "Credit/Debit Card", "Store Credit" });
+
+    [ObservableProperty]
+    private string _selectedPaymentMethod = "Cash";
+
+    [ObservableProperty]
+    private decimal _amountTendered;
+
+    [ObservableProperty]
+    private decimal _changeAmount;
+
+    partial void OnAmountTenderedChanged(decimal value)
+    {
+        CalculateChange();
+    }
+
+    private void CalculateChange()
+    {
+        if (SelectedPaymentMethod == "Cash")
+        {
+            ChangeAmount = Math.Max(0, AmountTendered - GrandTotal);
+        }
+        else
+        {
+            ChangeAmount = 0;
+            AmountTendered = GrandTotal;
+        }
+    }
+
     [RelayCommand]
-    private async Task CheckoutAsync()
+    private void Checkout()
+    {
+        if (!CartItems.Any()) return;
+        AmountTendered = GrandTotal;
+        CalculateChange();
+        ShowPaymentOverlay = true;
+    }
+
+    [RelayCommand]
+    private void CancelPayment()
+    {
+        ShowPaymentOverlay = false;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmPaymentAsync()
     {
         if (!CartItems.Any()) return;
         
         try
         {
-            // Prepare items
             var items = CartItems.Select(c => new CreateSaleItemDto(
                 c.ProductId,
                 c.Quantity,
@@ -183,22 +243,34 @@ public partial class SalesViewModel : ViewModelBase
                 0 // Discount
             )).ToList();
 
-            // Default warehouse for now (we'll assume the first one or a specific GUID if needed)
-            // A more robust implementation would select the user's current warehouse.
-            // For now, let's just pass Guid.Empty and let the handler deal with it or we fetch it.
-            // Actually, we must provide a valid WarehouseId. Let's fetch one quickly.
-            
-            // To keep it simple, we'll send the command. We need a valid WarehouseId. 
-            // In a real app, this is fetched during initialization.
             var command = new CreateSalesOrderCommand(null, Guid.Empty, items);
-            await _mediator.Send(command);
+            var savedOrder = await _mediator.Send(command);
 
+            // Receipt logic
+            var pdfService = App.Services!.GetRequiredService<ThriveERP.Application.Common.Interfaces.IPdfExportService>();
+            var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName")) ?? "Thrive Inc.";
+            var downloadsPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+            var receiptPath = System.IO.Path.Combine(downloadsPath, $"Receipt_{savedOrder.OrderNumber}.pdf");
+            
+            using var stream = System.IO.File.Create(receiptPath);
+            await pdfService.ExportReceiptAsync(stream, savedOrder, businessName);
+
+            ShowPaymentOverlay = false;
             ClearCart();
             await LoadSalesOrdersAsync();
+
+            try 
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = receiptPath,
+                    UseShellExecute = true
+                });
+            }
+            catch { /* Ignore */ }
         }
         catch (Exception ex)
         {
-            // Handle checkout failure (e.g., show an error dialog)
             Console.WriteLine($"Checkout failed: {ex.Message}");
         }
     }
@@ -208,6 +280,28 @@ public partial class SalesViewModel : ViewModelBase
         Subtotal = CartItems.Sum(c => c.LineTotal);
         Tax = Subtotal * 0.10m; // 10% tax for mockup
         GrandTotal = Subtotal + Tax;
+    }
+
+    partial void OnSelectedSalesOrderChanged(SalesOrderDto? value)
+    {
+        if (value != null)
+        {
+            _ = LoadOrderDetailsAsync(value.Id);
+        }
+        else
+        {
+            SelectedOrderItems.Clear();
+        }
+    }
+
+    private async Task LoadOrderDetailsAsync(Guid orderId)
+    {
+        var details = await _mediator.Send(new GetSalesOrderByIdQuery(orderId));
+        SelectedOrderItems.Clear();
+        if (details != null)
+        {
+            foreach(var item in details.Items) SelectedOrderItems.Add(item);
+        }
     }
 
     [RelayCommand]
@@ -222,6 +316,43 @@ public partial class SalesViewModel : ViewModelBase
         addVm.OnCancel = () => CurrentOverlay = null;
         
         CurrentOverlay = addVm;
+    }
+
+    [RelayCommand]
+    private void InitiateReturn(SaleItemDto item)
+    {
+        SelectedSaleItemForReturn = item;
+        ReturnQuantity = 1;
+        ReturnReason = string.Empty;
+        ShowReturnOverlay = true;
+    }
+
+    [RelayCommand]
+    private void CancelReturn()
+    {
+        ShowReturnOverlay = false;
+        SelectedSaleItemForReturn = null;
+    }
+
+    [RelayCommand]
+    private async Task ProcessReturnAsync()
+    {
+        if (SelectedSalesOrder == null || SelectedSaleItemForReturn == null) return;
+        
+        if (ReturnQuantity <= 0 || ReturnQuantity > SelectedSaleItemForReturn.Quantity) return; // Validation
+        
+        var cmd = new ThriveERP.Application.Features.Returns.ProcessReturnCommand(
+            SelectedSalesOrder.Id, 
+            SelectedSaleItemForReturn.ProductId, 
+            ReturnQuantity, 
+            ReturnReason);
+            
+        var result = await _mediator.Send(cmd);
+        if (result)
+        {
+            ShowReturnOverlay = false;
+            await LoadOrderDetailsAsync(SelectedSalesOrder.Id); // Refresh items
+        }
     }
 
     [RelayCommand]

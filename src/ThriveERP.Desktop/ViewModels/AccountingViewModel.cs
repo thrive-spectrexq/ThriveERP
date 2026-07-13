@@ -27,6 +27,15 @@ public partial class AccountingViewModel : ViewModelBase
     [ObservableProperty]
     private AddExpenseViewModel? _addExpenseViewModel;
 
+    [ObservableProperty]
+    private decimal _totalIncome;
+
+    [ObservableProperty]
+    private decimal _totalExpenses;
+
+    [ObservableProperty]
+    private decimal _netProfit;
+
     public AccountingViewModel() { } // designer
 
     public AccountingViewModel(IMediator mediator)
@@ -48,6 +57,11 @@ public partial class AccountingViewModel : ViewModelBase
             var expensesResult = await _mediator.Send(new GetAllExpensesQuery());
             Expenses.Clear();
             foreach (var e in expensesResult) Expenses.Add(e);
+
+            var summary = await _mediator.Send(new GetFinancialSummaryQuery());
+            TotalIncome = summary.TotalIncome;
+            TotalExpenses = summary.TotalExpenses;
+            NetProfit = summary.NetProfit;
         }
         finally
         {

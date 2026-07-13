@@ -28,6 +28,41 @@
 
       <!-- Content -->
       <TabControl Grid.Row="1" Margin="0">
+        <!-- Financial Summary Tab -->
+        <TabItem Header="P&amp;L Summary">
+          <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="30" Margin="0,10,0,0">
+            <StackPanel Spacing="20">
+              <TextBlock Text="Profit and Loss Overview" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,10"/>
+              
+              <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                <!-- Total Income -->
+                <Border Grid.Column="0" Background="#F0FDF4" CornerRadius="8" Padding="20" Margin="10">
+                  <StackPanel>
+                    <TextBlock Text="Total Income" FontSize="16" Foreground="#166534" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding TotalIncome, StringFormat={}{0:C}}" FontSize="28" Foreground="#15803D" FontWeight="Bold" Margin="0,10,0,0"/>
+                  </StackPanel>
+                </Border>
+                
+                <!-- Total Expenses -->
+                <Border Grid.Column="1" Background="#FEF2F2" CornerRadius="8" Padding="20" Margin="10">
+                  <StackPanel>
+                    <TextBlock Text="Total Expenses" FontSize="16" Foreground="#991B1B" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding TotalExpenses, StringFormat={}{0:C}}" FontSize="28" Foreground="#B91C1C" FontWeight="Bold" Margin="0,10,0,0"/>
+                  </StackPanel>
+                </Border>
+                
+                <!-- Net Profit -->
+                <Border Grid.Column="2" Background="#EFF6FF" CornerRadius="8" Padding="20" Margin="10">
+                  <StackPanel>
+                    <TextBlock Text="Net Profit" FontSize="16" Foreground="#1E40AF" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding NetProfit, StringFormat={}{0:C}}" FontSize="28" Foreground="#1D4ED8" FontWeight="Bold" Margin="0,10,0,0"/>
+                  </StackPanel>
+                </Border>
+              </Grid>
+            </StackPanel>
+          </Border>
+        </TabItem>
+
         <!-- Accounts Tab -->
         <TabItem Header="Chart of Accounts">
           <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,10,0,0">
