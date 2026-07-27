@@ -1,3 +1,9 @@
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using ThriveERP.Application.Features.Returns;
+using ThriveERP.Application.Features.Sales;
+
 namespace ThriveERP.Application.Common.Interfaces;
 
 /// <summary>
@@ -5,11 +11,7 @@ namespace ThriveERP.Application.Common.Interfaces;
 /// </summary>
 public interface IPdfExportService
 {
-    /// <summary>Exports the given data as a PDF document written to <paramref name="stream"/>.</summary>
-    /// <typeparam name="T">The type of data to export.</typeparam>
-    /// <param name="stream">The output stream to write the PDF to.</param>
-    /// <param name="data">The data to render in the PDF.</param>
-    /// <param name="ct">A cancellation token.</param>
     Task ExportAsync<T>(Stream stream, T data, CancellationToken ct = default);
-    Task ExportReceiptAsync(Stream stream, ThriveERP.Application.Features.Sales.SalesOrderDto order, string businessName, CancellationToken ct = default);
+    Task ExportReceiptAsync(Stream stream, SalesOrderDto order, string businessName, string? businessPhone = null, string? businessAddress = null, string? footerNote = null, CancellationToken ct = default);
+    Task ExportCreditNoteAsync(Stream stream, ReturnDto returnData, string businessName, string? businessPhone = null, string? businessAddress = null, CancellationToken ct = default);
 }

@@ -3,28 +3,33 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="ThriveERP.Desktop.Views.InventoryView"
              x:DataType="vm:InventoryViewModel">
     
-    <Grid Name="RootGrid" Background="Transparent">
-      <DockPanel>
+    <Panel>
+      <DockPanel Background="Transparent">
         <!-- Toolbar -->
-        <Border DockPanel.Dock="Top" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,10">
+        <Border DockPanel.Dock="Top" Background="{DynamicResource AppHeaderBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}" Padding="15,10">
           <Grid ColumnDefinitions="Auto, *, Auto">
-            <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+              <ComboBox ItemsSource="{Binding WarehouseFilters}" SelectedItem="{Binding SelectedWarehouse}" Width="160" CornerRadius="6" FontSize="12"/>
+              <CheckBox Content="⚠️ Low Stock Only" IsChecked="{Binding OnlyLowStock}" VerticalAlignment="Center" FontSize="12"/>
+            </StackPanel>
+
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
-              <TextBox PlaceholderText="Search inventory..." Text="{Binding SearchQuery}" Width="250" VerticalAlignment="Center" CornerRadius="4"/>
-              <Button Content="Refresh" Command="{Binding LoadStockLevelsCommand}" Background="Transparent" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,8" CornerRadius="4"/>
+              <TextBox PlaceholderText="Search product or warehouse..." Text="{Binding SearchQuery}" Width="240" VerticalAlignment="Center" CornerRadius="6"/>
+              <Button Content="↻ Refresh" Command="{Binding LoadStockLevelsCommand}" Classes="outline"/>
             </StackPanel>
           </Grid>
         </Border>
 
         <!-- Main Split View -->
-        <Grid ColumnDefinitions="*, 4, 350">
+        <Grid ColumnDefinitions="*, 4, 380">
           
-          <!-- Left: DataGrid -->
-          <Border Grid.Column="0" Background="Transparent" Margin="10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+          <!-- Left: Stock Table -->
+          <Border Grid.Column="0" Background="{DynamicResource AppCardBackground}" Margin="10" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource AppBorderBrush}">
             <DataGrid ItemsSource="{Binding FilteredStockLevels}" 
                       SelectedItem="{Binding SelectedStockLevel}"
                       AutoGenerateColumns="False" 
@@ -33,9 +38,9 @@
                       BorderThickness="0"
                       RowBackground="Transparent">
               <DataGrid.Columns>
-                <DataGridTextColumn Header="Product" Binding="{Binding ProductName}" Width="*"/>
-                <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="200"/>
-                <DataGridTextColumn Header="Quantity On Hand" Binding="{Binding QuantityOnHand}" Width="150"/>
+                <DataGridTextColumn Header="Product Name" Binding="{Binding ProductName}" Width="*"/>
+                <DataGridTextColumn Header="Warehouse Location" Binding="{Binding WarehouseName}" Width="180"/>
+                <DataGridTextColumn Header="Quantity On Hand" Binding="{Binding QuantityOnHand}" Width="140"/>
               </DataGrid.Columns>
             </DataGrid>
           </Border>
@@ -43,44 +48,52 @@
           <!-- Grid Splitter -->
           <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
 
-          <!-- Right: Detail Panel -->
-          <Border Grid.Column="2" Background="Transparent" Margin="10,10,10,10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+          <!-- Right: Detail & Movements Panel -->
+          <Border Grid.Column="2" Background="{DynamicResource AppCardBackground}" Margin="10" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource AppBorderBrush}">
             <Panel>
               <!-- Empty State -->
               <TextBlock IsVisible="{Binding SelectedStockLevel, Converter={x:Static ObjectConverters.IsNull}}"
-                         Text="Select a product to view stock details"
-                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14"/>
+                         Text="Select a product from the table to view stock details &amp; logs"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondary}" FontSize="13"/>
               
               <!-- Detail Content -->
               <Grid RowDefinitions="Auto, *" IsVisible="{Binding SelectedStockLevel, Converter={x:Static ObjectConverters.IsNotNull}}">
                 
                 <!-- Header -->
-                <Border Grid.Row="0" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15">
-                  <StackPanel>
-                    <TextBlock Text="{Binding SelectedStockLevel.ProductName}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"/>
-                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
-                      <Border Background="#FEF08A" CornerRadius="12" Padding="8,2">
-                        <TextBlock Text="{Binding SelectedStockLevel.WarehouseName}" FontSize="12" FontWeight="SemiBold" Foreground="#854D0E"/>
-                      </Border>
+                <Border Grid.Row="0" Background="{DynamicResource AppHeaderBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}" Padding="15">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                      <TextBlock Text="{Binding SelectedStockLevel.ProductName}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}" TextWrapping="Wrap"/>
+                      <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Border Background="#FEF08A" CornerRadius="12" Padding="8,2">
+                          <TextBlock Text="{Binding SelectedStockLevel.WarehouseName}" FontSize="11" FontWeight="Bold" Foreground="#854D0E"/>
+                        </Border>
+                        <TextBlock Text="{Binding SelectedStockLevel.QuantityOnHand, StringFormat='Stock: {0}'}" FontSize="13" FontWeight="Bold" Foreground="#3B82F6" VerticalAlignment="Center"/>
+                      </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,15,0,0">
-                      <TextBlock Text="Quantity On Hand:" FontSize="14" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" VerticalAlignment="Center"/>
-                      <TextBlock Text="{Binding SelectedStockLevel.QuantityOnHand}" FontSize="18" FontWeight="Bold" Foreground="#0284C7"/>
-                    </StackPanel>
-                  </StackPanel>
+                    
+                    <Button Grid.Column="1" Content="✏️ Adjust Stock" Command="{Binding OpenAdjustStockCommand}" Classes="accent" FontSize="11" Padding="10,5" VerticalAlignment="Center"/>
+                  </Grid>
                 </Border>
 
                 <!-- Tabs -->
                 <TabControl Grid.Row="1" Margin="5">
                   <TabItem Header="Stock Movements">
-                    <Grid>
-                      <TextBlock Text="Recent stock movements (in/out) will appear here." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
-                    </Grid>
+                    <DataGrid ItemsSource="{Binding SelectedStockMovements}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0">
+                      <DataGrid.Columns>
+                        <DataGridTextColumn Header="Movement Type" Binding="{Binding Type}" Width="*" />
+                        <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="55" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="110" />
+                      </DataGrid.Columns>
+                    </DataGrid>
                   </TabItem>
-                  <TabItem Header="Batches">
-                    <Grid>
-                      <TextBlock Text="Batch numbers and expiry dates will appear here." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
-                    </Grid>
+                  <TabItem Header="Batches / Serials">
+                    <Border Padding="15">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="Batch &amp; Serial Tracking" FontWeight="Bold" FontSize="13"/>
+                        <TextBlock Text="All inventory items are dynamically tracked with FIFO lot control upon purchase order receipt." FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+                      </StackPanel>
+                    </Border>
                   </TabItem>
                 </TabControl>
               </Grid>
@@ -88,5 +101,26 @@
           </Border>
         </Grid>
       </DockPanel>
-    </Grid>
+
+      <!-- Quick Adjust Stock Modal -->
+      <Grid Background="#80000000" IsVisible="{Binding ShowAdjustModal}" ZIndex="100">
+        <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <StackPanel Spacing="12">
+            <TextBlock Text="Adjust Product Stock" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="{Binding SelectedStockLevel.ProductName, StringFormat='Product: {0}'}" FontSize="13" Foreground="{DynamicResource AppTextSecondary}"/>
+            
+            <TextBlock Text="Adjustment Quantity (+/-):" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <NumericUpDown Value="{Binding AdjustmentQuantity}" Minimum="-1000" Maximum="1000" Increment="1"/>
+
+            <TextBlock Text="Reason for Adjustment:" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBox Text="{Binding AdjustmentReason}" PlaceholderText="e.g. Stocktake audit, Damaged goods..." />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,10,0,0">
+              <Button Content="Cancel" Command="{Binding CancelAdjustStockCommand}" Classes="outline"/>
+              <Button Content="Confirm Adjustment" Command="{Binding ConfirmAdjustStockCommand}" Classes="accent"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Panel>
 </UserControl>

@@ -26,6 +26,11 @@ public partial class ProductsViewModel : ViewModelBase
     [ObservableProperty]
     private ProductDto? _selectedProduct;
 
+    public ObservableCollection<string> StatusFilters { get; } = new(new[] { "All Stock", "In Stock", "Low Stock", "Out of Stock" });
+
+    [ObservableProperty]
+    private string _selectedStatusFilter = "All Stock";
+
     private string _searchQuery = string.Empty;
     public string SearchQuery
     {
@@ -46,6 +51,11 @@ public partial class ProductsViewModel : ViewModelBase
     {
         _mediator = mediator;
         LoadProductsCommand.Execute(null);
+    }
+
+    partial void OnSelectedStatusFilterChanged(string value)
+    {
+        ApplyFilter();
     }
 
     [RelayCommand]
@@ -71,54 +81,51 @@ public partial class ProductsViewModel : ViewModelBase
             var desktop = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             var outputDir = System.IO.Path.Combine(desktop, "ThriveERP_Labels");
             
-            // Map the DTO back to a Domain Entity just for the barcode generation if needed, 
-            // or pass the specific fields. Let's create a minimal Product entity.
             var productEntity = new ThriveERP.Domain.Entities.Product 
             { 
                 Sku = targetProduct.Sku, 
                 Name = targetProduct.Name, 
                 SellingPrice = targetProduct.SellingPrice,
-                Barcode = targetProduct.Sku // fallback if no barcode
+                Barcode = targetProduct.Sku
             };
 
             var resultPath = await labelService.GenerateLabelPdfAsync(productEntity, outputDir);
             
-            // Open the generated PDF
+            MainWindowViewModel.Instance?.ShowToast($"Barcode label printed for '{targetProduct.Name}'");
+
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = resultPath,
                 UseShellExecute = true
             });
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            System.Console.WriteLine($"Label Print Error: {ex.Message}");
+            Console.WriteLine($"Label Print Error: {ex.Message}");
         }
     }
 
     private void ApplyFilter()
     {
-        if (string.IsNullOrWhiteSpace(SearchQuery))
-        {
-            FilteredProducts = new ObservableCollection<ProductDto>(Products);
-        }
-        else
+        var filtered = Products.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(SearchQuery))
         {
             var q = SearchQuery.ToLower();
-            FilteredProducts = new ObservableCollection<ProductDto>(
-                Products.Where(p => p.Name.ToLower().Contains(q) || 
-                                    p.Sku.ToLower().Contains(q) ||
-                                    (p.Barcode != null && p.Barcode.Contains(q))));
+            filtered = filtered.Where(p => p.Name.ToLower().Contains(q) || 
+                                         p.Sku.ToLower().Contains(q) ||
+                                         (p.Barcode != null && p.Barcode.Contains(q)));
         }
+
+        FilteredProducts = new ObservableCollection<ProductDto>(filtered);
     }
 
     [RelayCommand]
     private async Task ShowAddProductAsync()
     {
         var addVm = App.Services!.GetRequiredService<AddProductViewModel>();
-        // Auto-generate SKU
         addVm.Sku = $"PRD-{DateTime.Now:yyMMddHHmmss}";
-        addVm.Barcode = addVm.Sku; // Default barcode to SKU as well
+        addVm.Barcode = addVm.Sku;
 
         await addVm.LoadAsync();
 
@@ -126,6 +133,7 @@ public partial class ProductsViewModel : ViewModelBase
         {
             CurrentOverlay = null;
             LoadProductsCommand.Execute(null);
+            MainWindowViewModel.Instance?.ShowToast("New Product added to catalog");
         };
         addVm.OnCancel = () => CurrentOverlay = null;
         
@@ -154,6 +162,7 @@ public partial class ProductsViewModel : ViewModelBase
         {
             CurrentOverlay = null;
             LoadProductsCommand.Execute(null);
+            MainWindowViewModel.Instance?.ShowToast($"Product '{target.Name}' updated");
         };
         addVm.OnCancel = () => CurrentOverlay = null;
         
@@ -169,5 +178,6 @@ public partial class ProductsViewModel : ViewModelBase
         await _mediator.Send(new DeleteProductCommand(target.Id));
         SelectedProduct = null;
         LoadProductsCommand.Execute(null);
+        MainWindowViewModel.Instance?.ShowToast($"Product '{target.Name}' deleted");
     }
 }

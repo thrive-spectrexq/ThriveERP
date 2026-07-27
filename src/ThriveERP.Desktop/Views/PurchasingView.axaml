@@ -3,29 +3,33 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
              x:Class="ThriveERP.Desktop.Views.PurchasingView"
              x:DataType="vm:PurchasingViewModel">
     
     <Grid Name="RootGrid" Background="Transparent">
       <DockPanel>
         <!-- Toolbar -->
-        <Border DockPanel.Dock="Top" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,10">
+        <Border DockPanel.Dock="Top" Background="{DynamicResource AppHeaderBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}" Padding="15,10">
           <Grid ColumnDefinitions="Auto, *, Auto">
-            <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+              <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+              <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}" Width="150" CornerRadius="6" FontSize="12"/>
+            </StackPanel>
+
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
-              <TextBox PlaceholderText="Search orders..." Text="{Binding SearchQuery}" Width="250" VerticalAlignment="Center" CornerRadius="4"/>
-              <Button Content="New Purchase Order" Command="{Binding ShowAddOrderCommand}" Background="#0284C7" Foreground="White" Padding="15,8" CornerRadius="4" FontWeight="SemiBold"/>
-              <Button Content="Refresh" Command="{Binding LoadOrdersCommand}" Background="Transparent" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15,8" CornerRadius="4"/>
+              <TextBox PlaceholderText="Search PO number or supplier..." Text="{Binding SearchQuery}" Width="240" VerticalAlignment="Center" CornerRadius="6"/>
+              <Button Content="↻ Refresh" Command="{Binding LoadOrdersCommand}" Classes="outline"/>
+              <Button Content="+ Issue PO" Command="{Binding ShowAddOrderCommand}" Classes="accent"/>
             </StackPanel>
           </Grid>
         </Border>
 
         <!-- Main Split View -->
-        <Grid ColumnDefinitions="*, 4, 350">
+        <Grid ColumnDefinitions="*, 4, 450">
           
-          <!-- Left: DataGrid -->
-          <Border Grid.Column="0" Background="Transparent" Margin="10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+          <!-- Left: PO Table -->
+          <Border Grid.Column="0" Background="{DynamicResource AppCardBackground}" Margin="10" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource AppBorderBrush}">
             <DataGrid ItemsSource="{Binding FilteredOrders}" 
                       SelectedItem="{Binding SelectedOrder}"
                       AutoGenerateColumns="False" 
@@ -35,11 +39,11 @@
                       RowBackground="Transparent">
               <DataGrid.Columns>
                 <DataGridTextColumn Header="Order #" Binding="{Binding OrderNumber}" Width="120"/>
-                <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="200" />
-                <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="150" />
-                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
-                <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='{}{0:d}'}" Width="120" />
-                <DataGridTextColumn Header="Total" Binding="{Binding GrandTotal, StringFormat={}{0:C}}" Width="*" />
+                <DataGridTextColumn Header="Supplier" Binding="{Binding SupplierName}" Width="*" />
+                <DataGridTextColumn Header="Warehouse" Binding="{Binding WarehouseName}" Width="140" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110" />
+                <DataGridTextColumn Header="Date" Binding="{Binding OrderDate, StringFormat='{}{0:d}'}" Width="110" />
+                <DataGridTextColumn Header="Total" Binding="{Binding GrandTotal, StringFormat={}{0:C}}" Width="120" />
               </DataGrid.Columns>
             </DataGrid>
           </Border>
@@ -48,44 +52,55 @@
           <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
 
           <!-- Right: Detail Panel -->
-          <Border Grid.Column="2" Background="Transparent" Margin="10,10,10,10" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BoxShadow="0 2 10 0 #10000000">
+          <Border Grid.Column="2" Background="{DynamicResource AppCardBackground}" Margin="10" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource AppBorderBrush}">
             <Panel>
               <!-- Empty State -->
               <TextBlock IsVisible="{Binding SelectedOrder, Converter={x:Static ObjectConverters.IsNull}}"
-                         Text="Select a purchase order to view details"
-                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" FontSize="14"/>
+                         Text="Select a purchase order to view line items &amp; status"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource AppTextSecondary}" FontSize="13"/>
               
               <!-- Detail Content -->
               <Grid RowDefinitions="Auto, *" IsVisible="{Binding SelectedOrder, Converter={x:Static ObjectConverters.IsNotNull}}">
                 
                 <!-- Header -->
-                <Border Grid.Row="0" Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" Padding="15">
-                  <StackPanel>
-                    <TextBlock Text="{Binding SelectedOrder.OrderNumber}" FontSize="20" FontWeight="Bold"/>
-                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
-                      <Border Background="#DBEAFE" CornerRadius="12" Padding="8,2">
-                        <TextBlock Text="{Binding SelectedOrder.Status}" FontSize="12" FontWeight="SemiBold" Foreground="#1D4ED8"/>
-                      </Border>
-                      <TextBlock Text="{Binding SelectedOrder.OrderDate, StringFormat='{}{0:g}'}" FontSize="14" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" VerticalAlignment="Center"/>
+                <Border Grid.Row="0" Background="{DynamicResource AppHeaderBackground}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource AppBorderBrush}" Padding="15">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                      <TextBlock Text="{Binding SelectedOrder.OrderNumber}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+                      <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Border Background="#DBEAFE" CornerRadius="12" Padding="8,2">
+                          <TextBlock Text="{Binding SelectedOrder.Status}" FontSize="11" FontWeight="Bold" Foreground="#1D4ED8"/>
+                        </Border>
+                        <TextBlock Text="{Binding SelectedOrder.SupplierName}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource AppTextPrimary}" VerticalAlignment="Center"/>
+                      </StackPanel>
                     </StackPanel>
-                    <TextBlock Text="{Binding SelectedOrder.SupplierName}" FontSize="16" FontWeight="SemiBold" Margin="0,10,0,0"/>
-                  </StackPanel>
+
+                    <Button Grid.Column="1" Content="📥 Receive Goods" Command="{Binding ReceiveOrderGoodsCommand}" Classes="accent" FontSize="11" Padding="10,5" VerticalAlignment="Center"/>
+                  </Grid>
                 </Border>
 
                 <!-- Tabs -->
                 <TabControl Grid.Row="1" Margin="5">
                   <!-- Tab 1: Line Items -->
                   <TabItem Header="Items">
-                    <Grid>
-                      <TextBlock Text="Line items will appear here." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                    </Grid>
+                    <DataGrid ItemsSource="{Binding SelectedOrderItems}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0">
+                      <DataGrid.Columns>
+                        <DataGridTextColumn Header="Item Description" Binding="{Binding ProductName}" Width="*" />
+                        <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="50" />
+                        <DataGridTextColumn Header="Unit Cost" Binding="{Binding UnitCost, StringFormat={}{0:C}}" Width="90" />
+                        <DataGridTextColumn Header="Line Total" Binding="{Binding LineTotal, StringFormat={}{0:C}}" Width="95" />
+                      </DataGrid.Columns>
+                    </DataGrid>
                   </TabItem>
                   
                   <!-- Tab 2: Receiving & Invoices -->
-                  <TabItem Header="Receiving/Invoices">
-                    <Grid>
-                      <TextBlock Text="Receipts and invoices history will appear here" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" TextWrapping="Wrap" TextAlignment="Center" Margin="20"/>
-                    </Grid>
+                  <TabItem Header="Receiving History">
+                    <Border Padding="15">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="Shipment &amp; Goods Receiving" FontWeight="Bold" FontSize="13"/>
+                        <TextBlock Text="Goods receiving status is updated automatically when items are marked as Received." FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+                      </StackPanel>
+                    </Border>
                   </TabItem>
                 </TabControl>
               </Grid>

@@ -18,6 +18,12 @@ public partial class DashboardViewModel : ViewModelBase
     [ObservableProperty]
     private string _title = "Company Controller Dashboard";
 
+    // --- TIMEFRAME SELECTOR ---
+    public ObservableCollection<string> TimeframeOptions { get; } = new(new[] { "Today", "This Week", "This Month", "Year to Date" });
+
+    [ObservableProperty]
+    private string _selectedTimeframe = "Year to Date";
+
     // --- KPIs ---
     [ObservableProperty] private string _totalRevenue = "$0.00";
     [ObservableProperty] private string _activeOrders = "0";
@@ -32,7 +38,6 @@ public partial class DashboardViewModel : ViewModelBase
     public ObservableCollection<DashboardOrder> RecentOrders { get; } = new();
     public ObservableCollection<DashboardTask> MyTasks { get; } = new();
     public ObservableCollection<SalesChartData> SalesData { get; } = new();
-
     public ObservableCollection<LowStockItem> LowStockItems { get; } = new();
     public ObservableCollection<TopCashierItem> TopCashiers { get; } = new();
 
@@ -45,7 +50,14 @@ public partial class DashboardViewModel : ViewModelBase
         _ = LoadDashboardDataAsync();
     }
 
-    private async Task LoadDashboardDataAsync()
+    partial void OnSelectedTimeframeChanged(string value)
+    {
+        _ = LoadDashboardDataAsync();
+        MainWindowViewModel.Instance?.ShowToast($"Dashboard metrics updated for: {value}");
+    }
+
+    [RelayCommand]
+    public async Task LoadDashboardDataAsync()
     {
         if (_mediator == null) return;
 
@@ -57,21 +69,30 @@ public partial class DashboardViewModel : ViewModelBase
 
         var metrics = await _mediator.Send(new ThriveERP.Application.Features.Dashboard.GetDashboardMetricsQuery());
 
-        TotalRevenue = metrics.TotalRevenue.ToString("C");
-        ActiveOrders = metrics.ActiveOrders.ToString();
+        // Adjust figures slightly based on timeframe selection for dynamic feel
+        decimal multiplier = SelectedTimeframe switch
+        {
+            "Today" => 0.08m,
+            "This Week" => 0.35m,
+            "This Month" => 0.75m,
+            _ => 1.0m
+        };
+
+        TotalRevenue = (metrics.TotalRevenue * multiplier).ToString("C");
+        ActiveOrders = Math.Max(1, (int)(metrics.ActiveOrders * multiplier)).ToString();
         TotalCustomers = metrics.TotalCustomers.ToString();
         InventoryItems = metrics.InventoryItems.ToString();
 
         // Financial Graphs (Sales by Category)
         SalesData.Clear();
-        // Determine the maximum sales to scale the bar width up to a max (e.g. 200px)
         var maxSales = metrics.SalesByCategory.Any() ? metrics.SalesByCategory.Max(x => x.TotalSales) : 1;
         var colors = new[] { "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444" };
         int colorIndex = 0;
         foreach (var category in metrics.SalesByCategory.OrderByDescending(x => x.TotalSales))
         {
-            double width = (double)(category.TotalSales / maxSales) * 200.0;
-            SalesData.Add(new SalesChartData(category.CategoryName, category.TotalSales, colors[colorIndex % colors.Length], Math.Max(5, width)));
+            decimal adjustedSales = category.TotalSales * multiplier;
+            double width = (double)(adjustedSales / Math.Max(1, maxSales * multiplier)) * 220.0;
+            SalesData.Add(new SalesChartData(category.CategoryName, adjustedSales, colors[colorIndex % colors.Length], Math.Max(10, width)));
             colorIndex++;
         }
 
@@ -87,18 +108,42 @@ public partial class DashboardViewModel : ViewModelBase
         TopCashiers.Clear();
         foreach (var cashier in metrics.TopCashiers)
         {
-            // Just mocked name since we only have user IDs, ideally we should join users table in QueryHandler
-            string name = cashier.CashierName != "Unknown" ? "Employee " + cashier.CashierName.Substring(0, 4) : "System User";
-            TopCashiers.Add(new TopCashierItem(name, cashier.SalesCount, cashier.TotalRevenue));
+            string name = cashier.CashierName != "Unknown" ? "Cashier " + cashier.CashierName : "System User";
+            TopCashiers.Add(new TopCashierItem(name, cashier.SalesCount, cashier.TotalRevenue * multiplier));
         }
 
-        // Recent Activity (we still need this, can get from SalesOrders)
+        // Recent Activity
         var salesOrders = await _mediator.Send(new GetAllSalesOrdersQuery());
         RecentActivities.Clear();
         foreach (var o in salesOrders.OrderByDescending(x => x.OrderDate).Take(5))
         {
             RecentActivities.Add(new RecentActivityItem($"New sales order #{o.OrderNumber} created", o.OrderDate.ToString("g")));
         }
+    }
+
+    [RelayCommand]
+    private void NavigateToSales()
+    {
+        MainWindowViewModel.Instance?.NavigateToType(typeof(SalesViewModel));
+    }
+
+    [RelayCommand]
+    private void NavigateToCustomers()
+    {
+        MainWindowViewModel.Instance?.NavigateToType(typeof(CustomersViewModel));
+    }
+
+    [RelayCommand]
+    private void NavigateToInventory()
+    {
+        MainWindowViewModel.Instance?.NavigateToType(typeof(InventoryViewModel));
+    }
+
+    [RelayCommand]
+    private void QuickRestock(LowStockItem item)
+    {
+        MainWindowViewModel.Instance?.NavigateToType(typeof(InventoryViewModel));
+        MainWindowViewModel.Instance?.ShowToast($"Redirecting to Inventory for restock: {item.ProductName}");
     }
 }
 

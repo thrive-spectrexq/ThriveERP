@@ -3,32 +3,119 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="800"
              x:Class="ThriveERP.Desktop.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
-  <StackPanel Margin="20" Spacing="20">
-    <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold"/>
-
-    <Border Padding="20" Background="{DynamicResource SystemRegionBrush}" BorderBrush="Gray" BorderThickness="1" CornerRadius="8">
-      <StackPanel Spacing="15">
-        <TextBlock Text="Application Settings" FontWeight="SemiBold" FontSize="18"/>
-        
-        <CheckBox Content="Enable Dark Mode" IsChecked="{Binding IsDarkMode}" />
-        <CheckBox Content="Enable Offline Mode" IsChecked="True" />
-        
-        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,10,0,0">
-          <TextBlock Grid.Row="0" Grid.Column="0" Text="Company Name:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-          <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CompanyName}" Margin="0,0,0,10"/>
-          
-          <TextBlock Grid.Row="1" Grid.Column="0" Text="Currency Symbol:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrencySymbol}" />
+  <ScrollViewer Margin="20">
+    <StackPanel Spacing="20">
+      <!-- Header -->
+      <Border Background="{DynamicResource AppHeaderBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" BoxShadow="0 2 10 0 #0D000000">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Spacing="2">
+            <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="Configure company profiles, POS receipt hardware, theme contrast, and database backups" FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+          </StackPanel>
+          <Button Grid.Column="1" Content="💾 Save Settings" Command="{Binding SaveSettingsCommand}" Classes="accent"/>
         </Grid>
+      </Border>
+
+      <!-- Settings Cards Grid -->
+      <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto" Margin="0">
         
-        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,10,0,0">
-          <Button Content="💾 Create Backup" Command="{Binding BackupDatabaseCommand}" Background="#3B82F6" Foreground="White"/>
-          <Button Content="Save Settings" Command="{Binding SaveSettingsCommand}" Background="#107C10" Foreground="White"/>
-        </StackPanel>
-      </StackPanel>
-    </Border>
-  </StackPanel>
+        <!-- Card 1: Appearance & Theme Contrast -->
+        <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="0,0,10,10" BoxShadow="0 2 10 0 #0D000000">
+          <StackPanel Spacing="15">
+            <TextBlock Text="🎨 Theme Contrast &amp; Palette" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="Adjust contrast for eye comfort. Light theme is dimmed to gray." FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+
+            <StackPanel Spacing="6">
+              <TextBlock Text="Active Theme Variant:" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource AppTextPrimary}"/>
+              <ComboBox ItemsSource="{Binding AvailableThemes}" SelectedItem="{Binding SelectedTheme}" HorizontalAlignment="Stretch" CornerRadius="6"/>
+            </StackPanel>
+
+            <CheckBox Content="Enable Offline Local Syncing" IsChecked="{Binding EnableOfflineSync}" FontSize="13"/>
+            <CheckBox Content="Enable Audio Feedback Beeps" IsChecked="{Binding EnableSoundEffects}" FontSize="13"/>
+          </StackPanel>
+        </Border>
+
+        <!-- Card 2: Company Profile -->
+        <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="10,0,0,10" BoxShadow="0 2 10 0 #0D000000">
+          <StackPanel Spacing="12">
+            <TextBlock Text="🏢 Business Profile &amp; Receipt Header" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="Appears at the top of POS receipts, invoices, and credit notes." FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+
+            <Grid ColumnDefinitions="130,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="0">
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Business Name:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+              <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CompanyName}" Margin="0,0,0,8" FontSize="12"/>
+              
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Phone Number:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+              <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CompanyPhone}" Margin="0,0,0,8" FontSize="12"/>
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="Physical Address:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+              <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CompanyAddress}" Margin="0,0,0,8" FontSize="12"/>
+
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Tax / VAT ID:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+              <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CompanyTaxId}" Margin="0,0,0,8" FontSize="12"/>
+
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="Currency Symbol:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+              <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CurrencySymbol}" Margin="0,0,0,8" FontSize="12"/>
+
+              <TextBlock Grid.Row="5" Grid.Column="0" Text="Default Tax (%):" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold"/>
+              <NumericUpDown Grid.Row="5" Grid.Column="1" Value="{Binding DefaultTaxRate}" Minimum="0" Maximum="100" FontSize="12"/>
+            </Grid>
+
+            <StackPanel Spacing="4">
+              <TextBlock Text="Receipt Footer Message:" FontSize="12" FontWeight="SemiBold"/>
+              <TextBox Text="{Binding ReceiptFooterNote}" PlaceholderText="e.g. Thanks for shopping with us!" Height="45" AcceptsReturn="True" FontSize="12"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Card 3: POS Receipt Printer Hardware (NEW) -->
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="0,10,0,10" BoxShadow="0 2 10 0 #0D000000">
+          <StackPanel Spacing="15">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Spacing="2">
+                <TextBlock Text="🖨️ POS Receipt Printer Hardware" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+                <TextBlock Text="Connect to thermal POS receipt printers (Epson, Star, Xprinter, Citizen, USB/Serial/Network)." FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+              </StackPanel>
+              <Button Grid.Column="1" Content="🖨️ Print Test Receipt" Command="{Binding PrintTestReceiptCommand}" Classes="accent" Padding="12,6"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" Margin="0,5,0,0">
+              <StackPanel Grid.Row="0" Grid.Column="0" Spacing="6" Margin="0,0,15,10">
+                <TextBlock Text="Connected Printer Device:" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource AppTextPrimary}"/>
+                <ComboBox ItemsSource="{Binding InstalledPrinters}" SelectedItem="{Binding SelectedPrinter}" HorizontalAlignment="Stretch" CornerRadius="6"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="0" Grid.Column="1" Spacing="6" Margin="15,0,0,10">
+                <TextBlock Text="Receipt Paper Width Roll:" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource AppTextPrimary}"/>
+                <ComboBox ItemsSource="{Binding PaperWidthOptions}" SelectedItem="{Binding SelectedPaperWidth}" HorizontalAlignment="Stretch" CornerRadius="6"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Spacing="20" Margin="0,5,0,0">
+                <CheckBox Content="Enable Auto Paper Cutter (ESC/POS)" IsChecked="{Binding AutoCutPaper}" FontSize="13"/>
+                <CheckBox Content="Kick Open Cash Drawer on Checkout" IsChecked="{Binding OpenCashDrawer}" FontSize="13"/>
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Card 4: Database & Maintenance -->
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="0,10,0,0" BoxShadow="0 2 10 0 #0D000000">
+          <StackPanel Spacing="12">
+            <TextBlock Text="💾 Database Maintenance &amp; Backups" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="Export an encrypted SQLite database backup to your Desktop." FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+              <Button Content="📦 Create Instant Database Backup" Command="{Binding BackupDatabaseCommand}" Classes="accent"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource AppAccentPrimary}" FontWeight="SemiBold" FontSize="12" Margin="0,5,0,0"/>
+          </StackPanel>
+        </Border>
+
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
 </UserControl>

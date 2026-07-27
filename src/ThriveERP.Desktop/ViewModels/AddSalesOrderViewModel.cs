@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using ThriveERP.Application.Features.Products;
 using ThriveERP.Application.Features.Sales;
 using ThriveERP.Application.Features.Customers;
@@ -203,27 +204,13 @@ public partial class AddSalesOrderViewModel : ViewModelBase
         {
             var savedOrder = await _mediator.Send(command);
             
+            var posPrinterService = App.Services!.GetRequiredService<ThriveERP.Application.Common.Interfaces.IPosPrinterService>();
             var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName")) ?? "Thrive Inc.";
-            var downloadsPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
-            var receiptPath = System.IO.Path.Combine(downloadsPath, $"Receipt_{savedOrder.OrderNumber}.pdf");
             
-            using var stream = System.IO.File.Create(receiptPath);
-            await _pdfService.ExportReceiptAsync(stream, savedOrder, businessName);
+            await posPrinterService.PrintReceiptAsync(savedOrder, "Default System Printer", "80mm", true, true, businessName);
 
-            // Close overlay and open the PDF automatically using standard process
             ShowPaymentOverlay = false;
             OnSaveComplete?.Invoke();
-            
-            try 
-            {
-                // On Windows, this will open the default PDF viewer which allows the user to print
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = receiptPath,
-                    UseShellExecute = true
-                });
-            }
-            catch { /* Ignore if it fails to open */ }
         }
         catch (Exception ex)
         {

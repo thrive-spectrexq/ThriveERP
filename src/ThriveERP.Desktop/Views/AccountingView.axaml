@@ -4,24 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:ThriveERP.Desktop.ViewModels"
              xmlns:views="clr-namespace:ThriveERP.Desktop.Views"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
              x:Class="ThriveERP.Desktop.Views.AccountingView"
              x:DataType="vm:AccountingViewModel"
-             Background="{DynamicResource SurfaceBackground}">
+             Background="Transparent">
 
   <Grid>
-    <Grid RowDefinitions="Auto,*" IsVisible="{Binding !IsAddingExpense}">
+    <Grid RowDefinitions="Auto,*" IsVisible="{Binding !IsAddingExpense}" Margin="20">
       <!-- Header -->
-      <Border Grid.Row="0" Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+      <Border Grid.Row="0" Background="{DynamicResource AppHeaderBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15" BoxShadow="0 2 10 0 #0D000000">
         <Grid ColumnDefinitions="*,Auto">
-          <StackPanel Grid.Column="0">
-            <TextBlock Text="Accounting" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,5"/>
-            <TextBlock Text="Manage accounts and expenses" FontSize="14" Foreground="{DynamicResource TextSecondary}"/>
+          <StackPanel Grid.Column="0" Spacing="2">
+            <TextBlock Text="Accounting &amp; Finance" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="General Ledger, Chart of Accounts, &amp; Expense Tracking" FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
           </StackPanel>
           
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-            <Button Content="+ Add Expense" Command="{Binding ShowAddExpenseCommand}" Classes="accent" Padding="15,8" CornerRadius="4"/>
-            <Button Content="Refresh" Command="{Binding LoadDataCommand}" Background="#3B82F6" Foreground="White" FontWeight="SemiBold" Padding="15,8" CornerRadius="4"/>
+            <ComboBox ItemsSource="{Binding PeriodOptions}" SelectedItem="{Binding SelectedPeriod}" Width="150" CornerRadius="6" FontSize="12"/>
+            <Button Content="+ Add Expense" Command="{Binding ShowAddExpenseCommand}" Classes="accent"/>
+            <Button Content="↻ Refresh" Command="{Binding LoadDataCommand}" Classes="outline"/>
           </StackPanel>
         </Grid>
       </Border>
@@ -30,61 +31,64 @@
       <TabControl Grid.Row="1" Margin="0">
         <!-- Financial Summary Tab -->
         <TabItem Header="P&amp;L Summary">
-          <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="30" Margin="0,10,0,0">
+          <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="25" Margin="0,10,0,0">
             <StackPanel Spacing="20">
-              <TextBlock Text="Profit and Loss Overview" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" Margin="0,0,0,10"/>
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Profit and Loss Overview" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+                <TextBlock Grid.Column="1" Text="{Binding SelectedPeriod}" FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+              </Grid>
               
-              <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+              <UniformGrid Columns="3">
                 <!-- Total Income -->
-                <Border Grid.Column="0" Background="#F0FDF4" CornerRadius="8" Padding="20" Margin="10">
-                  <StackPanel>
-                    <TextBlock Text="Total Income" FontSize="16" Foreground="#166534" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding TotalIncome, StringFormat={}{0:C}}" FontSize="28" Foreground="#15803D" FontWeight="Bold" Margin="0,10,0,0"/>
+                <Border Background="#F0FDF4" BorderBrush="#BBF7D0" BorderThickness="1" CornerRadius="10" Padding="20" Margin="8">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="Total Income" FontSize="14" Foreground="#166534" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalIncome, StringFormat={}{0:C}}" FontSize="26" Foreground="#15803D" FontWeight="ExtraBold"/>
                   </StackPanel>
                 </Border>
                 
                 <!-- Total Expenses -->
-                <Border Grid.Column="1" Background="#FEF2F2" CornerRadius="8" Padding="20" Margin="10">
-                  <StackPanel>
-                    <TextBlock Text="Total Expenses" FontSize="16" Foreground="#991B1B" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding TotalExpenses, StringFormat={}{0:C}}" FontSize="28" Foreground="#B91C1C" FontWeight="Bold" Margin="0,10,0,0"/>
+                <Border Background="#FEF2F2" BorderBrush="#FECACA" BorderThickness="1" CornerRadius="10" Padding="20" Margin="8">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="Total Expenses" FontSize="14" Foreground="#991B1B" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalExpenses, StringFormat={}{0:C}}" FontSize="26" Foreground="#B91C1C" FontWeight="ExtraBold"/>
                   </StackPanel>
                 </Border>
                 
                 <!-- Net Profit -->
-                <Border Grid.Column="2" Background="#EFF6FF" CornerRadius="8" Padding="20" Margin="10">
-                  <StackPanel>
-                    <TextBlock Text="Net Profit" FontSize="16" Foreground="#1E40AF" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding NetProfit, StringFormat={}{0:C}}" FontSize="28" Foreground="#1D4ED8" FontWeight="Bold" Margin="0,10,0,0"/>
+                <Border Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="10" Padding="20" Margin="8">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="Net Profit" FontSize="14" Foreground="#1E40AF" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding NetProfit, StringFormat={}{0:C}}" FontSize="26" Foreground="#1D4ED8" FontWeight="ExtraBold"/>
                   </StackPanel>
                 </Border>
-              </Grid>
+              </UniformGrid>
             </StackPanel>
           </Border>
         </TabItem>
 
         <!-- Accounts Tab -->
         <TabItem Header="Chart of Accounts">
-          <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,10,0,0">
+          <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,10,0,0">
             <DataGrid ItemsSource="{Binding Accounts}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0" RowBackground="Transparent">
               <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
-                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="150" />
-                <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat={}{0:C}}" Width="150" />
+                <DataGridTextColumn Header="Account Name" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Account Type" Binding="{Binding Type}" Width="180" />
+                <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat={}{0:C}}" Width="160" />
               </DataGrid.Columns>
             </DataGrid>
           </Border>
         </TabItem>
 
         <!-- Expenses Tab -->
-        <TabItem Header="Expenses">
-          <Border Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="20" Margin="0,10,0,0">
+        <TabItem Header="Expense Log">
+          <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,10,0,0">
             <DataGrid ItemsSource="{Binding Expenses}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0" RowBackground="Transparent">
               <DataGrid.Columns>
-                <DataGridTextColumn Header="Date" Binding="{Binding ExpenseDate}" Width="150" />
-                <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="150" />
+                <DataGridTextColumn Header="Date" Binding="{Binding ExpenseDate, StringFormat='{}{0:d}'}" Width="130" />
+                <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="160" />
                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
-                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:C}}" Width="150" />
+                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:C}}" Width="140" />
               </DataGrid.Columns>
             </DataGrid>
           </Border>
@@ -92,7 +96,7 @@
       </TabControl>
     </Grid>
 
-    <Panel IsVisible="{Binding IsAddingExpense}">
+    <Panel IsVisible="{Binding IsAddingExpense}" ZIndex="100">
       <views:AddExpenseView DataContext="{Binding AddExpenseViewModel}" />
     </Panel>
   </Grid>

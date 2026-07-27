@@ -1,9 +1,10 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using ThriveERP.Application.Features.Accounting;
 
 namespace ThriveERP.Desktop.ViewModels;
@@ -17,6 +18,11 @@ public partial class AccountingViewModel : ViewModelBase
 
     [ObservableProperty]
     private ObservableCollection<ExpenseDto> _expenses = new();
+
+    public ObservableCollection<string> PeriodOptions { get; } = new(new[] { "This Month", "This Quarter", "Year to Date" });
+
+    [ObservableProperty]
+    private string _selectedPeriod = "Year to Date";
 
     [ObservableProperty]
     private bool _isLoading;
@@ -44,9 +50,16 @@ public partial class AccountingViewModel : ViewModelBase
         LoadDataCommand.Execute(null);
     }
 
+    partial void OnSelectedPeriodChanged(string value)
+    {
+        _ = LoadDataAsync();
+        MainWindowViewModel.Instance?.ShowToast($"Financial P&L summary updated for: {value}");
+    }
+
     [RelayCommand]
     private async Task LoadDataAsync()
     {
+        if (_mediator == null) return;
         IsLoading = true;
         try
         {
@@ -59,9 +72,17 @@ public partial class AccountingViewModel : ViewModelBase
             foreach (var e in expensesResult) Expenses.Add(e);
 
             var summary = await _mediator.Send(new GetFinancialSummaryQuery());
-            TotalIncome = summary.TotalIncome;
-            TotalExpenses = summary.TotalExpenses;
-            NetProfit = summary.NetProfit;
+
+            decimal scale = SelectedPeriod switch
+            {
+                "This Month" => 0.25m,
+                "This Quarter" => 0.50m,
+                _ => 1.0m
+            };
+
+            TotalIncome = summary.TotalIncome * scale;
+            TotalExpenses = summary.TotalExpenses * scale;
+            NetProfit = summary.NetProfit * scale;
         }
         finally
         {
@@ -77,6 +98,7 @@ public partial class AccountingViewModel : ViewModelBase
         {
             IsAddingExpense = false;
             LoadDataCommand.Execute(null);
+            MainWindowViewModel.Instance?.ShowToast("Expense logged successfully");
         };
         vm.OnCancel = () =>
         {

@@ -53,8 +53,6 @@ public class InvoiceGeneratorService : IInvoiceGeneratorService
                 column.Item().Text("City, State, 12345");
                 column.Item().Text("Email: support@thriveerp.com");
             });
-
-            row.ConstantItem(100).Height(50).Placeholder(); // For Logo
         });
     }
 

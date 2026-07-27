@@ -57,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IPdfExportService, PdfExportService>();
         services.AddTransient<IExcelExportService, ExcelExportService>();
+        services.AddTransient<IPosPrinterService, PosPrinterService>();
 
         return services;
     }

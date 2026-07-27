@@ -8,34 +8,118 @@
         <local:ViewLocator/>
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <!-- Dimmed Slate-Gray Theme Default Resources (No stark pure white glare) -->
+        <SolidColorBrush x:Key="AppWindowBackground" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="AppHeaderBackground" Color="#EDF2F7" />
+        <SolidColorBrush x:Key="AppSidebarBackground" Color="#EDF2F7" />
+        <SolidColorBrush x:Key="AppCardBackground" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="AppSurfaceBackground" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="AppBorderBrush" Color="#CBD5E1" />
+        <SolidColorBrush x:Key="AppTextPrimary" Color="#0F172A" />
+        <SolidColorBrush x:Key="AppTextSecondary" Color="#475569" />
+        <SolidColorBrush x:Key="AppHoverBackground" Color="#CBD5E1" />
+        <SolidColorBrush x:Key="AppAccentPrimary" Color="#2563EB" />
+
+        <!-- Overrides for System region & controls -->
+        <SolidColorBrush x:Key="SystemRegionBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="SystemControlPageBackgroundChromeLowBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="SystemControlForegroundBaseHighBrush" Color="#0F172A" />
+        <SolidColorBrush x:Key="SystemControlForegroundBaseMediumBrush" Color="#475569" />
+        <SolidColorBrush x:Key="SystemControlForegroundBaseLowBrush" Color="#CBD5E1" />
+
+        <SolidColorBrush x:Key="CardBackground" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="SurfaceBackground" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="BackgroundBrush" Color="#E2E8F0" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#F1F5F9" />
+        <SolidColorBrush x:Key="TextPrimary" Color="#0F172A" />
+        <SolidColorBrush x:Key="TextSecondary" Color="#475569" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#2563EB" />
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
         
+        <!-- Global Text Block -->
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI, Inter, Arial, sans-serif"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppTextPrimary}"/>
+        </Style>
+
         <!-- Global Button Style -->
         <Style Selector="Button">
             <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Padding" Value="14,8"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- Accent Button Class -->
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <!-- Outline Button Class -->
+        <Style Selector="Button.outline">
+            <Setter Property="Background" Value="#EDF2F7"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppTextPrimary}"/>
+        </Style>
+
+        <!-- Chip Filter Button Class -->
+        <Style Selector="Button.chip">
+            <Setter Property="Background" Value="#CBD5E1"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+        <Style Selector="Button.chip-active">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
         </Style>
 
         <!-- Global DataGrid Style -->
         <Style Selector="DataGrid">
             <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Background" Value="{DynamicResource AppCardBackground}"/>
             <Setter Property="RowBackground" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="GridLinesVisibility" Value="Horizontal"/>
         </Style>
         <Style Selector="DataGridColumnHeader">
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Background" Value="#CBD5E1"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Padding" Value="10,8"/>
         </Style>
-        <Style Selector="TextBlock">
-            <Setter Property="FontFamily" Value="Inter, Arial, sans-serif"/>
+        <Style Selector="DataGridRow:pointerover">
+            <Setter Property="Background" Value="#E2E8F0"/>
+        </Style>
+        <Style Selector="DataGridRow:selected">
+            <Setter Property="Background" Value="#BFDBFE"/>
+        </Style>
+
+        <!-- Global TextBox Style -->
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource AppCardBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppTextPrimary}"/>
+            <Setter Property="Padding" Value="10,7"/>
         </Style>
     </Application.Styles>
 </Application>

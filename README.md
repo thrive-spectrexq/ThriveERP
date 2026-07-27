@@ -351,32 +351,6 @@ Recommended before your first real release — cheap to set up now, painful to r
 
 ---
 
-## Roadmap
-
-### Version 1.0 — Core Foundation
-- [x] User authentication & RBAC
-- [x] Product & inventory management
-- [x] Customer & supplier management
-- [x] Sales module (POS + invoicing)
-- [ ] Basic reporting (PDF/Excel export)
-- [x] Avalonia UI shell with Windows/macOS/Linux builds verified
-
-### Version 2.0 — Business Depth
-- [ ] Accounting module
-- [ ] Employee management
-- [ ] Advanced reporting & dashboards
-- [ ] Barcode label printing
-- [ ] Multi-warehouse support
-- [ ] Encrypted, scheduled backups
-
-### Version 3.0 — Scale
-- [ ] Cloud synchronization (optional, opt-in)
-- [ ] Multi-branch support
-- [ ] Companion mobile app
-- [ ] Advanced analytics & forecasting
-
----
-
 ## Contributing
 
 1. Fork the repository
@@ -393,10 +367,3 @@ Please include tests for new business logic (see [Testing Strategy](#testing-str
 
 ThriveERP is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
-
-## Vision
-
-ThriveERP aims to be a complete digital management solution for small businesses by combining simplicity, reliability, and solid cross-platform desktop architecture.
-
-**Offline. Simple. Reliable. Cross-platform. Business-ready.**

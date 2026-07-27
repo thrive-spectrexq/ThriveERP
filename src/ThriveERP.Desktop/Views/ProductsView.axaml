@@ -3,49 +3,64 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:ThriveERP.Desktop.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:prod="using:ThriveERP.Application.Features.Products"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
              x:Class="ThriveERP.Desktop.Views.ProductsView"
              x:DataType="vm:ProductsViewModel">
   <Panel>
     <DockPanel Margin="20">
-      <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,20">
-        <TextBlock Text="{Binding Title}" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
-        <TextBox Text="{Binding SearchQuery}" PlaceholderText="Search products..." Width="300" Margin="20,0,0,0" VerticalAlignment="Center"/>
-        <Button Content="Refresh" Command="{Binding LoadProductsCommand}" Margin="20,0,0,0" VerticalAlignment="Center"/>
-        <Button Content="Add Product" Command="{Binding ShowAddProductCommand}" Background="#107C10" Foreground="White" Margin="10,0,0,0" VerticalAlignment="Center"/>
-      </StackPanel>
+      <!-- Toolbar -->
+      <Border DockPanel.Dock="Top" Background="{DynamicResource AppHeaderBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8" Padding="15" Margin="0,0,0,15" BoxShadow="0 2 10 0 #0D000000">
+        <Grid ColumnDefinitions="Auto, *, Auto">
+          <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
+            <TextBlock Text="Manage items, pricing, SKUs and barcodes" FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
+          </StackPanel>
 
-      <DataGrid ItemsSource="{Binding FilteredProducts}" 
-                AutoGenerateColumns="False" 
-                IsReadOnly="True"
-                GridLinesVisibility="All"
-                BorderThickness="1"
-                BorderBrush="Gray">
-        <DataGrid.Columns>
-          <DataGridTextColumn Header="SKU" Binding="{Binding Sku}"/>
-          <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-          <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}"/>
-          <DataGridTextColumn Header="Brand" Binding="{Binding BrandName}" Width="150" />
-          <DataGridTextColumn Header="Cost Price" Binding="{Binding CostPrice, StringFormat={}{0:C}}" Width="100" />
-          <DataGridTextColumn Header="Selling Price" Binding="{Binding SellingPrice, StringFormat={}{0:C}}" Width="100" />
-          <DataGridTemplateColumn Header="Actions" Width="220">
-            <DataGridTemplateColumn.CellTemplate>
-              <DataTemplate>
-                <StackPanel Orientation="Horizontal" Spacing="5" Margin="5">
-                  <Button Content="Print" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).PrintLabelCommand}" CommandParameter="{Binding}" Background="#10B981" Foreground="White" Padding="10,5"/>
-                  <Button Content="Edit" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).EditProductCommand}" CommandParameter="{Binding}" Background="#3B82F6" Foreground="White" Padding="10,5"/>
-                  <Button Content="Delete" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).DeleteProductCommand}" CommandParameter="{Binding}" Background="#EF4444" Foreground="White" Padding="10,5"/>
-                </StackPanel>
-              </DataTemplate>
-            </DataGridTemplateColumn.CellTemplate>
-          </DataGridTemplateColumn>
-        </DataGrid.Columns>
-      </DataGrid>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <TextBox Text="{Binding SearchQuery}" PlaceholderText="Search products by name, SKU..." Width="260" VerticalAlignment="Center"/>
+            <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}" Width="130" CornerRadius="6" FontSize="12"/>
+            <Button Content="↻ Refresh" Command="{Binding LoadProductsCommand}" Classes="outline"/>
+            <Button Content="+ Add Product" Command="{Binding ShowAddProductCommand}" Classes="accent"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- DataGrid -->
+      <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="8">
+        <DataGrid ItemsSource="{Binding FilteredProducts}" 
+                  SelectedItem="{Binding SelectedProduct}"
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="0"
+                  RowBackground="Transparent">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120"/>
+            <DataGridTextColumn Header="Product Name" Binding="{Binding Name}" Width="*"/>
+            <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="140"/>
+            <DataGridTextColumn Header="Brand" Binding="{Binding BrandName}" Width="130" />
+            <DataGridTextColumn Header="Cost Price" Binding="{Binding CostPrice, StringFormat={}{0:C}}" Width="110" />
+            <DataGridTextColumn Header="Selling Price" Binding="{Binding SellingPrice, StringFormat={}{0:C}}" Width="110" />
+            <DataGridTemplateColumn Header="Actions" Width="220">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate DataType="prod:ProductDto">
+                  <StackPanel Orientation="Horizontal" Spacing="6" Margin="4">
+                    <Button Content="🏷️ Print" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).PrintLabelCommand}" CommandParameter="{Binding}" Classes="chip" Padding="8,4"/>
+                    <Button Content="✏️ Edit" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).EditProductCommand}" CommandParameter="{Binding}" Classes="outline" Padding="8,4"/>
+                    <Button Content="🗑️ Delete" Command="{Binding $parent[UserControl].((vm:ProductsViewModel)DataContext).DeleteProductCommand}" CommandParameter="{Binding}" Classes="outline" Foreground="#EF4444" Padding="8,4"/>
+                  </StackPanel>
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
+      </Border>
     </DockPanel>
 
     <!-- Overlay -->
-    <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}">
-      <ContentControl Content="{Binding CurrentOverlay}" />
+    <Border Background="#80000000" IsVisible="{Binding CurrentOverlay, Converter={x:Static ObjectConverters.IsNotNull}}" ZIndex="100">
+      <ContentControl Content="{Binding CurrentOverlay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Border>
   </Panel>
 </UserControl>
