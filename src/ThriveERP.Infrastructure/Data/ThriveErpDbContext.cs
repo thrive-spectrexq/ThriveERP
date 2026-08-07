@@ -1,6 +1,7 @@
 namespace ThriveERP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using ThriveERP.Domain.Entities;
+using ThriveERP.Domain.Enums;
 
 public class ThriveErpDbContext : DbContext
 {
@@ -64,6 +65,19 @@ public class ThriveErpDbContext : DbContext
                 Name = "Main Warehouse", 
                 Location = "HQ", 
                 IsDefault = true 
+            }
+        );
+
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                Username = "admin",
+                // Pre-computed BCrypt hash for password "admin"
+                PasswordHash = "$2a$11$wZYENeQGOl69BACvbyCWH.fb9YVA1OMMAbZMc/fjh3Fkf8oObo8je",
+                FullName = "Administrator",
+                RoleId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                IsActive = true
             }
         );
     }

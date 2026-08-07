@@ -1,39 +1,62 @@
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ThriveERP.Application.Common.Interfaces;
 
 namespace ThriveERP.Application.Features.Auth;
 
 public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResultDto>
 {
-    public Task<LoginResultDto> Handle(LoginCommand request, CancellationToken cancellationToken)
+    private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher _passwordHasher;
+    private readonly IRoleRepository _roleRepository;
+
+    public LoginCommandHandler(
+        IUserRepository userRepository,
+        IPasswordHasher passwordHasher,
+        IRoleRepository roleRepository)
     {
-        // For development/demo purposes, hardcode access if the database is not seeded.
-        // In a full implementation, you would query the IUserRepository and IPasswordHasher.
-        
-        if (request.Username.Equals("admin", StringComparison.OrdinalIgnoreCase) && request.Password == "admin")
+        _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
+        _roleRepository = roleRepository;
+    }
+
+    public async Task<LoginResultDto> Handle(LoginCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByUsernameAsync(request.Username, cancellationToken);
+
+        if (user == null || !user.IsActive)
         {
-            return Task.FromResult(new LoginResultDto(
-                Guid.NewGuid(),
-                "admin",
-                "Administrator",
-                "Admin",
-                new List<string> { "all" }
-            ));
-        }
-        else if (request.Username.Equals("cashier", StringComparison.OrdinalIgnoreCase) && request.Password == "cashier")
-        {
-            return Task.FromResult(new LoginResultDto(
-                Guid.NewGuid(),
-                "cashier",
-                "Store Cashier",
-                "Cashier",
-                new List<string> { "sales" }
-            ));
+            throw new UnauthorizedAccessException("Invalid username or password.");
         }
 
-        throw new Exception("Invalid username or password.");
+        if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
+        {
+            throw new UnauthorizedAccessException("Invalid username or password.");
+        }
+
+        // Update last login timestamp
+        user.LastLoginAtUtc = DateTime.UtcNow;
+        _userRepository.Update(user);
+
+        // Retrieve role and permissions
+        var role = await _roleRepository.GetByIdAsync(user.RoleId, cancellationToken);
+        string roleName = role?.Name ?? "User";
+
+        // For Administrator role, grant all permissions
+        var permissions = roleName.Equals("Administrator", StringComparison.OrdinalIgnoreCase)
+            ? new List<string> { "all" }
+            : new List<string> { "sales" };
+
+        return new LoginResultDto(
+            user.Id,
+            user.Username,
+            user.FullName,
+            roleName,
+            permissions
+        );
     }
 }

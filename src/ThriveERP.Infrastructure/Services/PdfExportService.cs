@@ -74,7 +74,7 @@ public class PdfExportService : IPdfExportService
                 page.Size(PageSizes.A4);
                 page.Margin(1.5f, Unit.Centimetre);
                 page.PageColor(Colors.White);
-                page.DefaultTextStyle(x => x.FontSize(10).FontFamily(Fonts.Arial));
+                page.DefaultTextStyle(x => x.FontSize(10));
                 
                 // Header (Clean Business Info - No Placeholder Image / Logo Box)
                 page.Header().Column(col =>
@@ -201,7 +201,7 @@ public class PdfExportService : IPdfExportService
                 page.Size(PageSizes.A4);
                 page.Margin(1.5f, Unit.Centimetre);
                 page.PageColor(Colors.White);
-                page.DefaultTextStyle(x => x.FontSize(10).FontFamily(Fonts.Arial));
+                page.DefaultTextStyle(x => x.FontSize(10));
                 
                 // Header
                 page.Header().Column(col =>

@@ -49,18 +49,7 @@ public class SalesOrder : BaseEntity, IAggregateRoot
     public Warehouse Warehouse { get; set; } = null!;
 
     /// <summary>Gets the line items on this order.</summary>
-    public ICollection<SaleItem> SaleItems
-    {
-        get => _saleItems;
-        set
-        {
-            _saleItems.Clear();
-            if (value is not null)
-            {
-                _saleItems.AddRange(value);
-            }
-        }
-    }
+    public IList<SaleItem> SaleItems => _saleItems;
 
     /// <summary>Gets the invoices generated from this order.</summary>
     public ICollection<Invoice> Invoices { get; set; } = [];

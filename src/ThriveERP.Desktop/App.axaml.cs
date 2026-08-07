@@ -36,6 +36,7 @@ public partial class App : Avalonia.Application
                 services.AddInfrastructureServices(context.Configuration);
                 services.AddTransient<MainWindowViewModel>();
                 services.AddTransient<MainWindow>();
+                services.AddTransient<LoginViewModel>();
                 
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<ProductsViewModel>();
@@ -71,7 +72,7 @@ public partial class App : Avalonia.Application
         {
             desktop.MainWindow = new Views.LoginWindow
             {
-                DataContext = new ViewModels.LoginViewModel(),
+                DataContext = Services.GetRequiredService<ViewModels.LoginViewModel>(),
             };
         }
         base.OnFrameworkInitializationCompleted();

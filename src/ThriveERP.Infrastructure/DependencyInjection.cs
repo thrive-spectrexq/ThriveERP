@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
@@ -53,6 +54,10 @@ public static class DependencyInjection
         services.AddTransient<IInvoiceGeneratorService, InvoiceGeneratorService>();
         services.AddTransient<IBackupService, BackupService>();
         services.AddTransient<IBarcodeLabelService, BarcodeLabelService>();
+        services.AddSingleton<CurrentUserService>();
+        services.AddSingleton<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());
+        services.AddTransient<IPasswordHasher, PasswordHasherService>();
+        services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IPdfExportService, PdfExportService>();

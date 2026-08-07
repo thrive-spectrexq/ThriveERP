@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using ThriveERP.Application.Features.Auth;
+using ThriveERP.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ThriveERP.Desktop.ViewModels;
@@ -38,6 +39,11 @@ public partial class LoginViewModel : ViewModelBase
         }
     }
 
+    public LoginViewModel(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     [RelayCommand]
     private async Task LoginAsync()
     {
@@ -57,29 +63,25 @@ public partial class LoginViewModel : ViewModelBase
             {
                 var result = await _mediator.Send(new LoginCommand(Username, Password));
                 
-                // If we get here without exception, login was successful
+                // Set the current user in the singleton CurrentUserService
+                var currentUserService = App.Services?.GetService<CurrentUserService>();
+                currentUserService?.SetUser(
+                    result.UserId, 
+                    result.Username, 
+                    result.RoleName, 
+                    result.Permissions);
+
                 App.CurrentRole = result.RoleName;
                 OnLoginSuccess?.Invoke(result.RoleName);
             }
             else
             {
-                // Fallback for UI testing if MediatR isn't hooked up correctly
-                await Task.Delay(1000);
-                if (Username == "admin" && Password == "admin")
-                {
-                    App.CurrentRole = "Admin";
-                    OnLoginSuccess?.Invoke("Admin");
-                }
-                else if (Username == "cashier" && Password == "cashier")
-                {
-                    App.CurrentRole = "Cashier";
-                    OnLoginSuccess?.Invoke("Cashier");
-                }
-                else
-                {
-                    ErrorMessage = "Invalid username or password.";
-                }
+                ErrorMessage = "Application services not available. Please restart.";
             }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            ErrorMessage = "Invalid username or password.";
         }
         catch (Exception ex)
         {

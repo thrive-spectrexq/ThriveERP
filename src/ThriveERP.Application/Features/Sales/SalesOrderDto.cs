@@ -1,6 +1,7 @@
 namespace ThriveERP.Application.Features.Sales;
 
 using System;
+using AutoMapper;
 using ThriveERP.Application.Common.Mappings;
 using ThriveERP.Domain.Entities;
 
@@ -15,4 +16,11 @@ public record SalesOrderDto : IMapFrom<SalesOrder>
     public string Status { get; init; } = string.Empty;
     public DateTime OrderDate { get; init; }
     public System.Collections.Generic.List<SaleItemDto> Items { get; init; } = new();
+
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<SalesOrder, SalesOrderDto>()
+            .ForMember(d => d.Status, opt => opt.MapFrom(s => s.Status.ToString()))
+            .ForMember(d => d.Items, opt => opt.MapFrom(s => s.SaleItems));
+    }
 }

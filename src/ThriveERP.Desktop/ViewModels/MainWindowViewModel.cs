@@ -89,12 +89,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void SetupForRole(string roleName)
     {
-        CurrentUserName = roleName.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? "Admin User" : "Cashier User";
+        CurrentUserName = roleName.Equals("Administrator", StringComparison.OrdinalIgnoreCase) || roleName.Equals("Admin", StringComparison.OrdinalIgnoreCase) ? "Admin User" : "Cashier User";
 
         Items.Clear();
         Items.Add(new ListItemTemplate(typeof(DashboardViewModel), "Dashboard", "Home"));
 
-        if (roleName.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+        if (roleName.Equals("Administrator", StringComparison.OrdinalIgnoreCase) || roleName.Equals("Admin", StringComparison.OrdinalIgnoreCase))
         {
             Items.Add(new ListItemTemplate(typeof(ProductsViewModel), "Products", "Box"));
             Items.Add(new ListItemTemplate(typeof(SalesViewModel), "Sales", "ShoppingCart"));

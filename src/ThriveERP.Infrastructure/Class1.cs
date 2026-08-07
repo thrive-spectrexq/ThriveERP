@@ -1,6 +1,1 @@
-﻿namespace ThriveERP.Infrastructure;
-
-public class Class1
-{
-
-}
+// This file is intentionally left empty.

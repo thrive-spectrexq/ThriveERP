@@ -1,5 +1,7 @@
 using System;
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using ThriveERP.Infrastructure.Services;
 
 namespace ThriveERP.Desktop.Views;
 
@@ -18,7 +20,7 @@ public partial class LoginWindow : Window
         {
             vm.OnLoginSuccess = (roleName) =>
             {
-                var mainWindow = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<MainWindow>(App.Services!);
+                var mainWindow = App.Services!.GetRequiredService<MainWindow>();
                 if (mainWindow.DataContext is ViewModels.MainWindowViewModel mainVm)
                 {
                     mainVm.SetupForRole(roleName);

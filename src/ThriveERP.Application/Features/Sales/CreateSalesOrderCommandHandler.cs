@@ -36,7 +36,7 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
         var warehouseId = request.WarehouseId;
         if (warehouseId == Guid.Empty)
         {
-            warehouseId = Guid.Parse("00000000-0000-0000-0000-000000000001"); // We will seed this
+            warehouseId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         }
 
         var order = new SalesOrder
@@ -46,41 +46,34 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
             CustomerId = request.CustomerId,
             WarehouseId = warehouseId,
             OrderDate = DateTime.UtcNow,
-            Status = ThriveERP.Domain.Enums.OrderStatus.Draft
+            Status = OrderStatus.Draft
         };
 
-        decimal subtotal = 0;
         foreach (var itemDto in request.Items)
         {
-            var lineTotal = (itemDto.Quantity * itemDto.UnitPrice) - itemDto.DiscountAmount;
-            subtotal += lineTotal;
-
-            order.SaleItems.Add(new SaleItem
+            // Use domain method AddItem() which enforces business rules
+            // and recalculates totals automatically
+            order.AddItem(new SaleItem
             {
                 Id = Guid.NewGuid(),
-                SalesOrderId = order.Id,
                 ProductId = itemDto.ProductId,
                 Quantity = itemDto.Quantity,
                 UnitPrice = itemDto.UnitPrice,
-                DiscountAmount = itemDto.DiscountAmount,
-                LineTotal = lineTotal
+                DiscountAmount = itemDto.DiscountAmount
             });
 
-            // Deduct inventory
-            var stockLevel = await _stockLevelRepository.GetByProductAndWarehouseAsync(itemDto.ProductId, warehouseId);
+            // Use domain method AdjustQuantity() which enforces non-negative stock
+            var stockLevel = await _stockLevelRepository.GetByProductAndWarehouseAsync(
+                itemDto.ProductId, warehouseId, cancellationToken);
             if (stockLevel != null)
             {
-                stockLevel.QuantityOnHand -= itemDto.Quantity;
+                stockLevel.AdjustQuantity(-itemDto.Quantity);
                 _stockLevelRepository.Update(stockLevel);
             }
         }
 
-        order.Subtotal = subtotal;
-        order.TaxTotal = 0; // Configurable tax later
-        order.GrandTotal = subtotal + order.TaxTotal;
-
-        // Auto-submit the order since it's from POS
-        order.Status = ThriveERP.Domain.Enums.OrderStatus.Submitted;
+        // Use domain method Submit() which enforces state machine and raises domain events
+        order.Submit();
 
         // Update customer balance if applicable
         if (order.CustomerId.HasValue)
