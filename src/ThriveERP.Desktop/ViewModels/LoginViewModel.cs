@@ -85,7 +85,8 @@ public partial class LoginViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            System.IO.File.WriteAllText("crash_log.txt", ex.ToString());
+            ErrorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
         }
         finally
         {

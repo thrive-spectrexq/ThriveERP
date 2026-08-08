@@ -9,7 +9,6 @@ using System;
 using ThriveERP.Application;
 using ThriveERP.Desktop.ViewModels;
 using ThriveERP.Infrastructure;
-
 namespace ThriveERP.Desktop;
 
 public partial class App : Avalonia.Application

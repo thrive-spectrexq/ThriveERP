@@ -8,12 +8,14 @@ using MediatR;
 using ThriveERP.Application.Features.Sales;
 using ThriveERP.Application.Features.Customers;
 using ThriveERP.Application.Features.Products;
+using Avalonia.Threading;
 
 namespace ThriveERP.Desktop.ViewModels;
 
 public partial class DashboardViewModel : ViewModelBase
 {
     private readonly IMediator? _mediator;
+    private DispatcherTimer? _posSimTimer;
 
     [ObservableProperty]
     private string _title = "Company Controller Dashboard";
@@ -33,11 +35,12 @@ public partial class DashboardViewModel : ViewModelBase
     [ObservableProperty] private string _lowStockAlerts = "0 Items";
     [ObservableProperty] private bool _isAdminView;
 
+    // --- Chart Data ---
+    public ObservableCollection<NativeChartItem> RevenueChartData { get; } = new();
+    public ObservableCollection<NativeChartItem> CategoryChartData { get; } = new();
+
     // --- Lists ---
-    public ObservableCollection<RecentActivityItem> RecentActivities { get; } = new();
-    public ObservableCollection<DashboardOrder> RecentOrders { get; } = new();
-    public ObservableCollection<DashboardTask> MyTasks { get; } = new();
-    public ObservableCollection<SalesChartData> SalesData { get; } = new();
+    public ObservableCollection<LivePosActivityItem> LivePosFeed { get; } = new();
     public ObservableCollection<LowStockItem> LowStockItems { get; } = new();
     public ObservableCollection<TopCashierItem> TopCashiers { get; } = new();
 
@@ -47,7 +50,13 @@ public partial class DashboardViewModel : ViewModelBase
     {
         _mediator = mediator;
         _isAdminView = App.CurrentRole == "Admin";
+        
         _ = LoadDashboardDataAsync();
+
+        if (_isAdminView)
+        {
+            StartLivePosFeedSimulator();
+        }
     }
 
     partial void OnSelectedTimeframeChanged(string value)
@@ -69,7 +78,6 @@ public partial class DashboardViewModel : ViewModelBase
 
         var metrics = await _mediator.Send(new ThriveERP.Application.Features.Dashboard.GetDashboardMetricsQuery());
 
-        // Adjust figures slightly based on timeframe selection for dynamic feel
         decimal multiplier = SelectedTimeframe switch
         {
             "Today" => 0.08m,
@@ -83,17 +91,39 @@ public partial class DashboardViewModel : ViewModelBase
         TotalCustomers = metrics.TotalCustomers.ToString();
         InventoryItems = metrics.InventoryItems.ToString();
 
-        // Financial Graphs (Sales by Category)
-        SalesData.Clear();
-        var maxSales = metrics.SalesByCategory.Any() ? metrics.SalesByCategory.Max(x => x.TotalSales) : 1;
-        var colors = new[] { "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444" };
-        int colorIndex = 0;
-        foreach (var category in metrics.SalesByCategory.OrderByDescending(x => x.TotalSales))
+        // 1. UPDATE REVENUE BAR CHART (Native)
+        RevenueChartData.Clear();
+        var rnd = new Random();
+        var baseVal = (double)(metrics.TotalRevenue * multiplier) / 7.0;
+        string[] days = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+        var rawValues = new double[7];
+        double maxRev = 1;
+        
+        for(int i = 0; i < 7; i++) 
         {
-            decimal adjustedSales = category.TotalSales * multiplier;
-            double width = (double)(adjustedSales / Math.Max(1, maxSales * multiplier)) * 220.0;
-            SalesData.Add(new SalesChartData(category.CategoryName, adjustedSales, colors[colorIndex % colors.Length], Math.Max(10, width)));
-            colorIndex++;
+            rawValues[i] = Math.Max(10, baseVal + rnd.NextDouble() * 500 - 250);
+            if (rawValues[i] > maxRev) maxRev = rawValues[i];
+        }
+
+        for (int i = 0; i < 7; i++)
+        {
+            double height = (rawValues[i] / maxRev) * 180.0;
+            RevenueChartData.Add(new NativeChartItem(days[i], rawValues[i], height, "#10B981"));
+        }
+
+        // 2. UPDATE CATEGORY BAR CHART (Native)
+        CategoryChartData.Clear();
+        var colors = new[] { "#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444" };
+        var topCats = metrics.SalesByCategory.OrderByDescending(x => x.TotalSales).Take(5).ToList();
+        double maxCat = topCats.Any() ? (double)topCats.Max(x => x.TotalSales) * (double)multiplier : 1;
+        
+        int colorIdx = 0;
+        foreach (var category in topCats)
+        {
+            double amount = (double)(category.TotalSales * multiplier);
+            double width = (amount / maxCat) * 200.0;
+            CategoryChartData.Add(new NativeChartItem(category.CategoryName, amount, Math.Max(10, width), colors[colorIdx % colors.Length]));
+            colorIdx++;
         }
 
         // Inventory Alerts
@@ -111,33 +141,40 @@ public partial class DashboardViewModel : ViewModelBase
             string name = cashier.CashierName != "Unknown" ? "Cashier " + cashier.CashierName : "System User";
             TopCashiers.Add(new TopCashierItem(name, cashier.SalesCount, cashier.TotalRevenue * multiplier));
         }
+    }
 
-        // Recent Activity
-        var salesOrders = await _mediator.Send(new GetAllSalesOrdersQuery());
-        RecentActivities.Clear();
-        foreach (var o in salesOrders.OrderByDescending(x => x.OrderDate).Take(5))
+    private void StartLivePosFeedSimulator()
+    {
+        LivePosFeed.Clear();
+        LivePosFeed.Add(new LivePosActivityItem("ORD-7001", "Cashier Sarah", "$124.50", "Completed", "Just now"));
+        LivePosFeed.Add(new LivePosActivityItem("ORD-7002", "Cashier Mike", "$45.00", "Processing", "1m ago"));
+
+        _posSimTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+        _posSimTimer.Tick += (s, e) =>
         {
-            RecentActivities.Add(new RecentActivityItem($"New sales order #{o.OrderNumber} created", o.OrderDate.ToString("g")));
-        }
+            var rnd = new Random();
+            var orderNum = "ORD-" + rnd.Next(7003, 9999);
+            var amount = "$" + (rnd.NextDouble() * 200 + 15).ToString("0.00");
+            var cashiers = new[] { "Cashier Sarah", "Cashier Mike", "Admin", "Cashier Jane" };
+            
+            LivePosFeed.Insert(0, new LivePosActivityItem(orderNum, cashiers[rnd.Next(cashiers.Length)], amount, "Completed", "Just now"));
+            
+            if (LivePosFeed.Count > 10)
+            {
+                LivePosFeed.RemoveAt(LivePosFeed.Count - 1);
+            }
+        };
+        _posSimTimer.Start();
     }
 
     [RelayCommand]
-    private void NavigateToSales()
-    {
-        MainWindowViewModel.Instance?.NavigateToType(typeof(SalesViewModel));
-    }
+    private void NavigateToSales() => MainWindowViewModel.Instance?.NavigateToType(typeof(SalesViewModel));
 
     [RelayCommand]
-    private void NavigateToCustomers()
-    {
-        MainWindowViewModel.Instance?.NavigateToType(typeof(CustomersViewModel));
-    }
+    private void NavigateToCustomers() => MainWindowViewModel.Instance?.NavigateToType(typeof(CustomersViewModel));
 
     [RelayCommand]
-    private void NavigateToInventory()
-    {
-        MainWindowViewModel.Instance?.NavigateToType(typeof(InventoryViewModel));
-    }
+    private void NavigateToInventory() => MainWindowViewModel.Instance?.NavigateToType(typeof(InventoryViewModel));
 
     [RelayCommand]
     private void QuickRestock(LowStockItem item)
@@ -147,9 +184,7 @@ public partial class DashboardViewModel : ViewModelBase
     }
 }
 
-public record RecentActivityItem(string Description, string Time);
-public record DashboardOrder(string OrderNum, string Customer, string Amount, string Status);
-public record DashboardTask(string TaskName, string Priority, string DueDate);
-public record SalesChartData(string Category, decimal Amount, string ColorHex, double BarWidth);
+public record NativeChartItem(string Label, double Value, double Size, string ColorHex);
+public record LivePosActivityItem(string OrderId, string Cashier, string Amount, string Status, string Time);
 public record LowStockItem(string ProductName, decimal QuantityOnHand, int ReorderThreshold);
 public record TopCashierItem(string CashierName, int SalesCount, decimal TotalRevenue);

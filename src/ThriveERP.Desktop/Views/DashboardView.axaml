@@ -2,184 +2,233 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:ThriveERP.Desktop.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             xmlns:vm="clr-namespace:ThriveERP.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="ThriveERP.Desktop.Views.DashboardView"
              x:DataType="vm:DashboardViewModel">
     
-    <ScrollViewer Margin="20">
-        <StackPanel Spacing="20">
-            <!-- Header & Timeframe Selector -->
-            <Grid ColumnDefinitions="*,Auto">
+    <ScrollViewer>
+        <Grid RowDefinitions="Auto,Auto,*" Margin="30">
+            
+            <!-- HEADER -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,25">
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="{Binding Title}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
-                    <TextBlock Text="Real-time business performance overview" FontSize="13" Foreground="{DynamicResource AppTextSecondary}"/>
+                    <TextBlock Text="{Binding Title}" FontSize="28" FontWeight="Bold" Foreground="#111827"/>
+                    <TextBlock Text="Here's what's happening today." FontSize="15" Foreground="#6B7280" Margin="0,4,0,0"/>
                 </StackPanel>
                 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <TextBlock Text="Period:" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource AppTextSecondary}"/>
-                    <ComboBox ItemsSource="{Binding TimeframeOptions}" SelectedItem="{Binding SelectedTimeframe}" 
-                              Width="140" CornerRadius="6" FontSize="12" Padding="8,4"/>
-                    <Button Content="↻ Refresh" Command="{Binding LoadDashboardDataCommand}" Classes="outline" Padding="10,6" Margin="5,0,0,0"/>
-                </StackPanel>
+                <ComboBox Grid.Column="1" 
+                          ItemsSource="{Binding TimeframeOptions}" 
+                          SelectedItem="{Binding SelectedTimeframe}"
+                          Width="160" VerticalAlignment="Center"
+                          Background="White" CornerRadius="8" BorderBrush="#E5E7EB"/>
             </Grid>
             
-            <!-- Metric Cards (Interactive Navigation) -->
-            <UniformGrid Columns="4" Margin="0,5,0,15">
-                <!-- Card 1: Total Revenue -->
-                <Button Command="{Binding NavigateToSalesCommand}" Background="Transparent" Padding="0" Margin="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="18" BoxShadow="0 2 10 0 #0D000000">
-                        <StackPanel Spacing="6">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Text="Total Revenue" Foreground="{DynamicResource AppTextSecondary}" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Column="1" Text="↗ Sales" FontSize="11" Foreground="#10B981" FontWeight="Bold"/>
-                            </Grid>
-                            <TextBlock Text="{Binding TotalRevenue}" FontSize="24" FontWeight="Bold" Foreground="#10B981"/>
-                            <TextBlock Text="Click to view Sales module →" FontSize="11" Foreground="{DynamicResource AppTextSecondary}"/>
-                        </StackPanel>
-                    </Border>
-                </Button>
-
-                <!-- Card 2: Active Orders -->
-                <Button Command="{Binding NavigateToSalesCommand}" Background="Transparent" Padding="0" Margin="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="18" BoxShadow="0 2 10 0 #0D000000">
-                        <StackPanel Spacing="6">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Text="Active Orders" Foreground="{DynamicResource AppTextSecondary}" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Column="1" Text="🛒 POS" FontSize="11" Foreground="#3B82F6" FontWeight="Bold"/>
-                            </Grid>
-                            <TextBlock Text="{Binding ActiveOrders}" FontSize="24" FontWeight="Bold" Foreground="#3B82F6"/>
-                            <TextBlock Text="Click to open POS terminal →" FontSize="11" Foreground="{DynamicResource AppTextSecondary}"/>
-                        </StackPanel>
-                    </Border>
-                </Button>
-
-                <!-- Card 3: Total Customers -->
-                <Button Command="{Binding NavigateToCustomersCommand}" Background="Transparent" Padding="0" Margin="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="18" BoxShadow="0 2 10 0 #0D000000">
-                        <StackPanel Spacing="6">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Text="Total Customers" Foreground="{DynamicResource AppTextSecondary}" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Column="1" Text="👤 CRM" FontSize="11" Foreground="#F59E0B" FontWeight="Bold"/>
-                            </Grid>
-                            <TextBlock Text="{Binding TotalCustomers}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B"/>
-                            <TextBlock Text="Click to manage Customers →" FontSize="11" Foreground="{DynamicResource AppTextSecondary}"/>
-                        </StackPanel>
-                    </Border>
-                </Button>
-
-                <!-- Card 4: Inventory Items -->
-                <Button Command="{Binding NavigateToInventoryCommand}" Background="Transparent" Padding="0" Margin="6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                    <Border Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="18" BoxShadow="0 2 10 0 #0D000000">
-                        <StackPanel Spacing="6">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Text="Inventory Items" Foreground="{DynamicResource AppTextSecondary}" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Grid.Column="1" Text="📦 Stock" FontSize="11" Foreground="#8B5CF6" FontWeight="Bold"/>
-                            </Grid>
-                            <TextBlock Text="{Binding InventoryItems}" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6"/>
-                            <TextBlock Text="Click to check stock levels →" FontSize="11" Foreground="{DynamicResource AppTextSecondary}"/>
-                        </StackPanel>
-                    </Border>
-                </Button>
+            <!-- KPI CARDS -->
+            <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,25">
+                <!-- Revenue -->
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,15,0" 
+                        BoxShadow="0 4 6 0 #0D000000">
+                    <StackPanel>
+                        <TextBlock Text="Total Revenue" FontSize="14" Foreground="#6B7280"/>
+                        <TextBlock Text="{Binding TotalRevenue}" FontSize="24" FontWeight="Bold" Foreground="#10B981" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+                <!-- Orders -->
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,15,0"
+                        BoxShadow="0 4 6 0 #0D000000">
+                    <StackPanel>
+                        <TextBlock Text="Active Orders" FontSize="14" Foreground="#6B7280"/>
+                        <TextBlock Text="{Binding ActiveOrders}" FontSize="24" FontWeight="Bold" Foreground="#3B82F6" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+                <!-- Customers -->
+                <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,15,0"
+                        BoxShadow="0 4 6 0 #0D000000">
+                    <StackPanel>
+                        <TextBlock Text="New Customers" FontSize="14" Foreground="#6B7280"/>
+                        <TextBlock Text="{Binding TotalCustomers}" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+                <!-- Inventory -->
+                <Border Background="White" CornerRadius="12" Padding="20"
+                        BoxShadow="0 4 6 0 #0D000000">
+                    <StackPanel>
+                        <TextBlock Text="Items in Stock" FontSize="14" Foreground="#6B7280"/>
+                        <TextBlock Text="{Binding InventoryItems}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
             </UniformGrid>
-
-            <!-- Dashboard Body Grid -->
-            <Grid ColumnDefinitions="*, *, *" RowDefinitions="*,*" Margin="0,5">
+            
+            <!-- MAIN CONTENT AREA -->
+            <Grid Grid.Row="2" ColumnDefinitions="2*,1*">
                 
-                <!-- Financial Graphs (Sales by Category) -->
-                <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="0,0,10,10" BoxShadow="0 2 10 0 #0D000000">
-                    <StackPanel>
-                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,15">
-                            <TextBlock Grid.Column="0" Text="Sales Breakdown by Category" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedTimeframe}" FontSize="12" Foreground="{DynamicResource AppTextSecondary}"/>
-                        </Grid>
-                        <ItemsControl ItemsSource="{Binding SalesData}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="vm:SalesChartData">
-                                    <Grid ColumnDefinitions="120, *, 90" Margin="0,8">
-                                        <TextBlock Grid.Column="0" Text="{Binding Category}" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource AppTextPrimary}"/>
-                                        <Border Grid.Column="1" Height="22" Background="{Binding ColorHex}" Width="{Binding BarWidth}" HorizontalAlignment="Left" CornerRadius="4"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Amount, StringFormat={}{0:C0}}" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource AppTextPrimary}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <!-- Inventory Alerts -->
-                <Border Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="10,0,0,0" BoxShadow="0 2 10 0 #0D000000">
-                    <StackPanel Spacing="12">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="⚠️" FontSize="18"/>
-                            <TextBlock Text="Low Stock Alerts" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}"/>
-                        </StackPanel>
-                        <ItemsControl ItemsSource="{Binding LowStockItems}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="vm:LowStockItem">
-                                    <Border Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <StackPanel Grid.Column="0" Spacing="4">
-                                                <TextBlock Text="{Binding ProductName}" FontWeight="Bold" Foreground="#991B1B" TextWrapping="Wrap" FontSize="13"/>
-                                                <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock Text="Current Stock:" Foreground="#B91C1C" FontSize="11"/>
-                                                    <TextBlock Text="{Binding QuantityOnHand}" FontWeight="Bold" Foreground="#B91C1C" FontSize="11"/>
-                                                    <TextBlock Text="/" Foreground="#B91C1C" FontSize="11"/>
-                                                    <TextBlock Text="{Binding ReorderThreshold}" Foreground="#B91C1C" FontSize="11"/>
-                                                </StackPanel>
-                                            </StackPanel>
-                                            <Button Grid.Column="1" Content="Restock" Command="{Binding $parent[UserControl].((vm:DashboardViewModel)DataContext).QuickRestockCommand}" CommandParameter="{Binding}"
-                                                    Background="#EF4444" Foreground="White" FontSize="11" Padding="8,4" CornerRadius="4" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                    
+                    <!-- REVENUE CHART NATIVE -->
+                    <Border Background="White" CornerRadius="12" Padding="24" Margin="0,0,0,20"
+                            BoxShadow="0 4 6 0 #0D000000">
+                        <StackPanel>
+                            <TextBlock Text="Revenue Trend" FontSize="18" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,20"/>
+                            <ItemsControl ItemsSource="{Binding RevenueChartData}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="7" Height="180" VerticalAlignment="Bottom"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Bottom" Margin="8,0">
+                                            <Border Background="{Binding ColorHex}" 
+                                                    Height="{Binding Size}" 
+                                                    CornerRadius="4,4,0,0" 
+                                                    ToolTip.Tip="{Binding Value}" />
+                                            <TextBlock Text="{Binding Label}" 
+                                                       Foreground="#6B7280" FontSize="12" 
+                                                       HorizontalAlignment="Center" 
+                                                       Margin="0,8,0,-20"
+                                                       VerticalAlignment="Bottom"/>
                                         </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!-- Space for labels below -->
+                            <Border Height="20"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- BOTTOM ROW: Categories & Low Stock -->
+                    <Grid ColumnDefinitions="1*,1*">
+                        <!-- CATEGORY BARS NATIVE -->
+                        <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="24" Margin="0,0,10,0"
+                                BoxShadow="0 4 6 0 #0D000000">
+                            <StackPanel>
+                                <TextBlock Text="Top Categories" FontSize="18" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,20"/>
+                                <ItemsControl ItemsSource="{Binding CategoryChartData}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,0,0,12">
+                                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                                                    <TextBlock Text="{Binding Label}" FontSize="13" Foreground="#374151"/>
+                                                    <TextBlock Text="{Binding Value, StringFormat=C0}" FontSize="13" FontWeight="SemiBold" Foreground="#111827"/>
+                                                </Grid>
+                                                <Border Background="#F3F4F6" Height="8" CornerRadius="4" HorizontalAlignment="Left" Width="200">
+                                                    <Border Background="{Binding ColorHex}" Width="{Binding Size}" Height="8" CornerRadius="4" HorizontalAlignment="Left"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="24" Margin="10,0,0,0"
+                                BoxShadow="0 4 6 0 #0D000000">
+                            <StackPanel>
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,20">
+                                    <TextBlock Text="Low Stock Alerts" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                                    <Border Background="#FEE2E2" CornerRadius="12" Padding="8,2">
+                                        <TextBlock Text="{Binding LowStockAlerts}" FontSize="12" FontWeight="Bold" Foreground="#EF4444"/>
                                     </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock Text="No low stock alerts" IsVisible="{Binding !LowStockItems.Count}" FontStyle="Italic" Foreground="{DynamicResource AppTextSecondary}" Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Top Cashiers / Employee Analytics -->
-                <Border Grid.Column="0" Grid.Row="1" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="0,10,10,0" BoxShadow="0 2 10 0 #0D000000" IsVisible="{Binding IsAdminView}">
-                    <StackPanel>
-                        <TextBlock Text="Top Cashiers" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}" Margin="0,0,0,12"/>
-                        <ItemsControl ItemsSource="{Binding TopCashiers}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="vm:TopCashierItem">
-                                    <Grid ColumnDefinitions="Auto, *, Auto" Margin="0,6">
-                                        <Border Grid.Column="0" Width="32" Height="32" CornerRadius="16" Background="{DynamicResource AppHoverBackground}" Margin="0,0,10,0">
-                                            <TextBlock Text="👤" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"/>
+                                </Grid>
+                                
+                                <ItemsControl ItemsSource="{Binding LowStockItems}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="#F3F4F6" BorderThickness="0,0,0,1" Padding="0,12">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding ProductName}" FontWeight="SemiBold" Foreground="#111827"/>
+                                                        <TextBlock Text="{Binding QuantityOnHand, StringFormat='Only {0} left (Reorder: {1})'}" 
+                                                                 FontSize="13" Foreground="#EF4444" Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Content="Restock" 
+                                                            Classes="outline" 
+                                                            Command="{Binding $parent[UserControl].((vm:DashboardViewModel)DataContext).QuickRestockCommand}"
+                                                            CommandParameter="{Binding}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    
+                </StackPanel>
+                
+                <!-- RIGHT SIDEBAR -->
+                <StackPanel Grid.Column="1">
+                    
+                    <!-- LIVE POS FEED -->
+                    <Border Background="White" CornerRadius="12" Padding="24" Margin="0,0,0,20"
+                            BoxShadow="0 4 6 0 #0D000000">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,20">
+                                <TextBlock Text="Live POS Activity" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                                <Ellipse Width="8" Height="8" Fill="#10B981">
+                                    <Ellipse.Styles>
+                                        <Style Selector="Ellipse">
+                                            <Style.Animations>
+                                                <Animation Duration="0:0:1.5" IterationCount="INFINITE">
+                                                    <KeyFrame Cue="0%">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </KeyFrame>
+                                                    <KeyFrame Cue="50%">
+                                                        <Setter Property="Opacity" Value="0.2"/>
+                                                    </KeyFrame>
+                                                    <KeyFrame Cue="100%">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                    </KeyFrame>
+                                                </Animation>
+                                            </Style.Animations>
+                                        </Style>
+                                    </Ellipse.Styles>
+                                </Ellipse>
+                            </Grid>
+                            
+                            <ItemsControl ItemsSource="{Binding LivePosFeed}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#F3F4F6" BorderThickness="0,0,0,1" Padding="0,12">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" Background="#ECFDF5" Margin="0,0,12,0">
+                                                    <TextBlock Text="💰" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding OrderId}" FontWeight="SemiBold" Foreground="#111827"/>
+                                                    <TextBlock Text="{Binding Cashier}" FontSize="12" Foreground="#6B7280"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                    <TextBlock Text="{Binding Amount}" FontWeight="Bold" Foreground="#10B981" HorizontalAlignment="Right"/>
+                                                    <TextBlock Text="{Binding Time}" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Right"/>
+                                                </StackPanel>
+                                            </Grid>
                                         </Border>
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding CashierName}" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource AppTextPrimary}"/>
-                                            <TextBlock Text="{Binding SalesCount, StringFormat='{}{0} Completed Orders'}" FontSize="11" Foreground="{DynamicResource AppTextSecondary}"/>
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="2" Text="{Binding TotalRevenue, StringFormat={}{0:C0}}" FontWeight="Bold" Foreground="#10B981" VerticalAlignment="Center" FontSize="13"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <!-- Recent Activity -->
-                <Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="20" Margin="10,10,10,0" BoxShadow="0 2 10 0 #0D000000" IsVisible="{Binding IsAdminView}">
-                    <StackPanel>
-                        <TextBlock Text="Recent System Activity" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AppTextPrimary}" Margin="0,0,0,12"/>
-                        <ItemsControl ItemsSource="{Binding RecentActivities}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="vm:RecentActivityItem">
-                                    <Grid ColumnDefinitions="*, Auto" Margin="0,6">
-                                        <TextBlock Grid.Column="0" Text="{Binding Description}" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource AppTextPrimary}" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding Time}" FontSize="11" Foreground="{DynamicResource AppTextSecondary}" VerticalAlignment="Top" Margin="10,0,0,0"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- QUICK ACTIONS -->
+                    <Border Background="White" CornerRadius="12" Padding="24"
+                            BoxShadow="0 4 6 0 #0D000000">
+                        <StackPanel>
+                            <TextBlock Text="Quick Actions" FontSize="18" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,20"/>
+                            <Button Content="New Sale (POS)" Classes="primary" HorizontalAlignment="Stretch" Margin="0,0,0,10"
+                                    Command="{Binding NavigateToSalesCommand}"/>
+                            <Button Content="Add Customer" Classes="outline" HorizontalAlignment="Stretch" Margin="0,0,0,10"
+                                    Command="{Binding NavigateToCustomersCommand}"/>
+                            <Button Content="Receive Inventory" Classes="outline" HorizontalAlignment="Stretch"
+                                    Command="{Binding NavigateToInventoryCommand}"/>
+                        </StackPanel>
+                    </Border>
+                    
+                </StackPanel>
+                
             </Grid>
-        </StackPanel>
+            
+        </Grid>
     </ScrollViewer>
 </UserControl>
