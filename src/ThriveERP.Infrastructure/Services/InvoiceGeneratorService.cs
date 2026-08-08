@@ -16,7 +16,7 @@ public class InvoiceGeneratorService : IInvoiceGeneratorService
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
-    public void GenerateSalesOrderPdf(SalesOrder order, string outputPath)
+    public void GenerateSalesOrderPdf(SalesOrder order, string outputPath, string businessName = "ThriveERP Inc.", string businessAddress = "123 Business Road", string businessPhone = "", string businessEmail = "support@thriveerp.com")
     {
         Document.Create(container =>
         {
@@ -27,7 +27,7 @@ public class InvoiceGeneratorService : IInvoiceGeneratorService
                 page.PageColor(Colors.White);
                 page.DefaultTextStyle(x => x.FontSize(11));
 
-                page.Header().Element(c => ComposeHeader(c, order));
+                page.Header().Element(c => ComposeHeader(c, order, businessName, businessAddress, businessPhone, businessEmail));
                 page.Content().Element(c => ComposeContent(c, order));
                 page.Footer().AlignCenter().Text(x =>
                 {
@@ -40,7 +40,7 @@ public class InvoiceGeneratorService : IInvoiceGeneratorService
         .GeneratePdf(outputPath);
     }
 
-    private void ComposeHeader(IContainer container, SalesOrder order)
+    private void ComposeHeader(IContainer container, SalesOrder order, string businessName, string businessAddress, string businessPhone, string businessEmail)
     {
         var titleStyle = TextStyle.Default.FontSize(20).SemiBold().FontColor(Colors.Blue.Darken2);
 
@@ -48,10 +48,15 @@ public class InvoiceGeneratorService : IInvoiceGeneratorService
         {
             row.RelativeItem().Column(column =>
             {
-                column.Item().Text("ThriveERP Inc.").Style(titleStyle);
-                column.Item().Text("123 Business Road");
-                column.Item().Text("City, State, 12345");
-                column.Item().Text("Email: support@thriveerp.com");
+                column.Item().Text(businessName).Style(titleStyle);
+                if (!string.IsNullOrWhiteSpace(businessAddress)) column.Item().Text(businessAddress);
+                if (!string.IsNullOrWhiteSpace(businessPhone)) column.Item().Text($"Phone: {businessPhone}");
+                if (!string.IsNullOrWhiteSpace(businessEmail)) column.Item().Text($"Email: {businessEmail}");
+            });
+
+            row.RelativeItem().AlignRight().Column(column =>
+            {
+                column.Item().Text($"Invoice #: INV-{order.OrderNumber}").SemiBold().FontSize(14);
             });
         });
     }
@@ -71,8 +76,17 @@ public class InvoiceGeneratorService : IInvoiceGeneratorService
 
             column.Item().Element(c => ComposeTable(c, order));
 
-            var totalPrice = order.GrandTotal;
-            column.Item().PaddingRight(5).AlignRight().Text($"Total: {totalPrice:C}").SemiBold().FontSize(14);
+            column.Item().PaddingRight(5).AlignRight().Column(totals =>
+            {
+                totals.Spacing(2);
+                totals.Item().Text($"Subtotal: {order.Subtotal:C}").FontSize(12);
+                if (order.DiscountTotal > 0)
+                {
+                    totals.Item().Text($"Discount: -{order.DiscountTotal:C}").FontSize(12);
+                }
+                totals.Item().Text($"Tax: {order.TaxTotal:C}").FontSize(12);
+                totals.Item().Text($"Grand Total: {order.GrandTotal:C}").SemiBold().FontSize(14);
+            });
         });
     }
 

@@ -12,6 +12,6 @@ namespace ThriveERP.Application.Common.Interfaces;
 public interface IPdfExportService
 {
     Task ExportAsync<T>(Stream stream, T data, CancellationToken ct = default);
-    Task ExportReceiptAsync(Stream stream, SalesOrderDto order, string businessName, string? businessPhone = null, string? businessAddress = null, string? footerNote = null, CancellationToken ct = default);
+    Task ExportReceiptAsync(Stream stream, SalesOrderDto order, string businessName, string? businessPhone = null, string? businessAddress = null, string? taxId = null, string? footerNote = null, CancellationToken ct = default);
     Task ExportCreditNoteAsync(Stream stream, ReturnDto returnData, string businessName, string? businessPhone = null, string? businessAddress = null, CancellationToken ct = default);
 }

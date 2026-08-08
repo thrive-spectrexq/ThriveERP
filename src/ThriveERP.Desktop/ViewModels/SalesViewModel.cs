@@ -89,11 +89,19 @@ public partial class SalesViewModel : ViewModelBase
     [ObservableProperty]
     private decimal _grandTotal;
 
+    public int CartItemCount => CartItems.Sum(c => c.Quantity);
+    public bool IsCartEmpty => !CartItems.Any();
+
+    [ObservableProperty] private decimal _selectedOrderSubtotal;
+    [ObservableProperty] private decimal _selectedOrderDiscount;
+    [ObservableProperty] private decimal _selectedOrderTax;
+    [ObservableProperty] private decimal _selectedOrderGrandTotal;
+
     // --- Sales Orders History Filters ---
     [ObservableProperty]
     private string _salesOrderSearchQuery = string.Empty;
 
-    public ObservableCollection<string> OrderStatusFilters { get; } = new(new[] { "All Statuses", "Completed", "Refunded", "Pending" });
+    public ObservableCollection<string> OrderStatusFilters { get; } = new(new[] { "All Statuses", "Submitted", "Invoiced", "Paid", "Voided", "Draft" });
 
     [ObservableProperty]
     private string _selectedOrderStatusFilter = "All Statuses";
@@ -312,6 +320,9 @@ public partial class SalesViewModel : ViewModelBase
     [ObservableProperty]
     private decimal _changeAmount;
 
+    [ObservableProperty]
+    private bool _insufficientCash;
+
     partial void OnAmountTenderedChanged(decimal value)
     {
         CalculateChange();
@@ -336,11 +347,13 @@ public partial class SalesViewModel : ViewModelBase
         if (SelectedPaymentMethod == "Cash")
         {
             ChangeAmount = Math.Max(0, AmountTendered - GrandTotal);
+            InsufficientCash = AmountTendered < GrandTotal;
         }
         else
         {
             ChangeAmount = 0;
             AmountTendered = GrandTotal;
+            InsufficientCash = false;
         }
     }
 
@@ -414,26 +427,13 @@ public partial class SalesViewModel : ViewModelBase
             // Fetch full order with populated item names
             var fullOrder = await _mediator.Send(new GetSalesOrderByIdQuery(savedOrder.Id)) ?? savedOrder;
 
-            // Direct POS Receipt Printer hardware printing
-            var posPrinterService = App.Services!.GetRequiredService<ThriveERP.Application.Common.Interfaces.IPosPrinterService>();
-            var pdfService = App.Services!.GetRequiredService<ThriveERP.Application.Common.Interfaces.IPdfExportService>();
-            var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName")) ?? "Thrive Inc.";
-            var businessPhone = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessPhone"));
-            var businessAddress = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessAddress"));
-            var footerNote = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("ReceiptFooterNote"));
-
-            // Send to physical POS printer if connected
-            await posPrinterService.PrintReceiptAsync(fullOrder, "Default System Printer", "80mm", true, true, businessName);
-
-            // Export PDF receipt & open in viewer so cashier can view and print on screen immediately
-            var downloadsPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
-            var receiptPath = System.IO.Path.Combine(downloadsPath, $"Receipt_{fullOrder.OrderNumber}.pdf");
-            
-            using (var stream = System.IO.File.Create(receiptPath))
-            {
-                await pdfService.ExportReceiptAsync(stream, fullOrder, businessName, businessPhone, businessAddress, footerNote);
-                await stream.FlushAsync();
-            }
+            // Populate transient payment properties for receipt printing
+            fullOrder = fullOrder with 
+            { 
+                AmountTendered = this.AmountTendered, 
+                ChangeGiven = this.ChangeAmount, 
+                PaymentMethodUsed = this.SelectedPaymentMethod 
+            };
 
             ShowPaymentOverlay = false;
             ClearCart();
@@ -451,18 +451,47 @@ public partial class SalesViewModel : ViewModelBase
                 typeof(SalesViewModel)
             );
 
-            MainWindowViewModel.Instance?.ShowToast($"Payment successful! Order #{fullOrder.OrderNumber} completed.");
-
-            // Open PDF viewer so receipt is instantly viewable on screen
-            try
+            try 
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                // Direct POS Receipt Printer hardware printing
+                var posPrinterService = App.Services!.GetRequiredService<ThriveERP.Application.Common.Interfaces.IPosPrinterService>();
+                var pdfService = App.Services!.GetRequiredService<ThriveERP.Application.Common.Interfaces.IPdfExportService>();
+                var businessName = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessName")) ?? "Thrive Inc.";
+                var businessPhone = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessPhone"));
+                var businessAddress = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("BusinessAddress"));
+                var footerNote = await _mediator.Send(new ThriveERP.Application.Features.Settings.GetSettingQuery("ReceiptFooterNote"));
+
+                // Send to physical POS printer if connected
+                await posPrinterService.PrintReceiptAsync(fullOrder, "Default System Printer", "80mm", true, true, businessName);
+
+                // Export PDF receipt & open in viewer so cashier can view and print on screen immediately
+                var downloadsPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile), "Downloads");
+                var receiptPath = System.IO.Path.Combine(downloadsPath, $"Receipt_{fullOrder.OrderNumber}.pdf");
+                
+                using (var stream = System.IO.File.Create(receiptPath))
                 {
-                    FileName = receiptPath,
-                    UseShellExecute = true
-                });
+                    await pdfService.ExportReceiptAsync(stream, fullOrder, businessName, businessPhone, businessAddress, footerNote);
+                    await stream.FlushAsync();
+                }
+                
+                MainWindowViewModel.Instance?.ShowToast($"Payment successful! Order #{fullOrder.OrderNumber} completed.");
+
+                // Open PDF viewer so receipt is instantly viewable on screen
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = receiptPath,
+                        UseShellExecute = true
+                    });
+                }
+                catch { /* Ignore if viewer cannot launch */ }
             }
-            catch { /* Ignore if viewer cannot launch */ }
+            catch (Exception printEx)
+            {
+                Console.WriteLine($"Receipt generation failed: {printEx.Message}");
+                MainWindowViewModel.Instance?.ShowToast($"Payment successful for Order #{fullOrder.OrderNumber}, but receipt generation failed.");
+            }
         }
         catch (Exception ex)
         {
@@ -517,8 +546,11 @@ public partial class SalesViewModel : ViewModelBase
         Subtotal = CartItems.Sum(c => c.LineTotal);
         DiscountAmount = Subtotal * (DiscountPercent / 100m);
         var netSubtotal = Math.Max(0, Subtotal - DiscountAmount);
-        Tax = netSubtotal * 0.10m; // 10% tax
+        Tax = netSubtotal * 0.15m; // 15% tax
         GrandTotal = netSubtotal + Tax;
+
+        OnPropertyChanged(nameof(CartItemCount));
+        OnPropertyChanged(nameof(IsCartEmpty));
     }
 
     partial void OnSelectedSalesOrderChanged(SalesOrderDto? value)
@@ -540,6 +572,17 @@ public partial class SalesViewModel : ViewModelBase
         if (details != null)
         {
             foreach(var item in details.Items) SelectedOrderItems.Add(item);
+            SelectedOrderSubtotal = details.Items.Sum(i => i.UnitPrice * i.Quantity);
+            SelectedOrderDiscount = details.Items.Sum(i => i.DiscountAmount);
+            SelectedOrderTax = (SelectedOrderSubtotal - SelectedOrderDiscount) * 0.10m;
+            SelectedOrderGrandTotal = details.GrandTotal;
+        }
+        else
+        {
+            SelectedOrderSubtotal = 0;
+            SelectedOrderDiscount = 0;
+            SelectedOrderTax = 0;
+            SelectedOrderGrandTotal = 0;
         }
     }
 
@@ -718,4 +761,23 @@ public partial class CartItemViewModel : ObservableObject
             _parentVm?.CalculateTotals();
         }
     }
+}
+
+public class OrderStatusColorConverter : Avalonia.Data.Converters.IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+    {
+        var status = value?.ToString();
+        bool isBg = parameter?.ToString() == "bg";
+        return status switch
+        {
+            "Submitted" => isBg ? "#DBEAFE" : "#1D4ED8", // blue
+            "Paid" => isBg ? "#D1FAE5" : "#059669", // green
+            "Voided" => isBg ? "#FEE2E2" : "#DC2626", // red
+            "Draft" => isBg ? "#F3F4F6" : "#4B5563", // gray
+            "Invoiced" => isBg ? "#FEF3C7" : "#D97706", // amber
+            _ => isBg ? "#E5E7EB" : "#374151" // default
+        };
+    }
+    public object? ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
 }

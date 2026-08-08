@@ -8,7 +8,7 @@
              x:DataType="vm:DashboardViewModel">
     
     <ScrollViewer>
-        <Grid RowDefinitions="Auto,Auto,*" Margin="30">
+        <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="30">
             
             <!-- HEADER -->
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,25">
@@ -30,38 +30,63 @@
                 <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,15,0" 
                         BoxShadow="0 4 6 0 #0D000000">
                     <StackPanel>
-                        <TextBlock Text="Total Revenue" FontSize="14" Foreground="#6B7280"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Total Revenue" FontSize="14" Foreground="#6B7280"/>
+                            <TextBlock Grid.Column="1" Text="💰" FontSize="16"/>
+                        </Grid>
                         <TextBlock Text="{Binding TotalRevenue}" FontSize="24" FontWeight="Bold" Foreground="#10B981" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding RevenueTrend}" FontSize="12" Foreground="#10B981" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <!-- Orders -->
                 <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,15,0"
                         BoxShadow="0 4 6 0 #0D000000">
                     <StackPanel>
-                        <TextBlock Text="Active Orders" FontSize="14" Foreground="#6B7280"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Active Orders" FontSize="14" Foreground="#6B7280"/>
+                            <TextBlock Grid.Column="1" Text="📋" FontSize="16"/>
+                        </Grid>
                         <TextBlock Text="{Binding ActiveOrders}" FontSize="24" FontWeight="Bold" Foreground="#3B82F6" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding OrdersTrend}" FontSize="12" Foreground="#10B981" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <!-- Customers -->
                 <Border Background="White" CornerRadius="12" Padding="20" Margin="0,0,15,0"
                         BoxShadow="0 4 6 0 #0D000000">
                     <StackPanel>
-                        <TextBlock Text="New Customers" FontSize="14" Foreground="#6B7280"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="New Customers" FontSize="14" Foreground="#6B7280"/>
+                            <TextBlock Grid.Column="1" Text="👥" FontSize="16"/>
+                        </Grid>
                         <TextBlock Text="{Binding TotalCustomers}" FontSize="24" FontWeight="Bold" Foreground="#8B5CF6" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding CustomersTrend}" FontSize="12" Foreground="#10B981" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <!-- Inventory -->
                 <Border Background="White" CornerRadius="12" Padding="20"
                         BoxShadow="0 4 6 0 #0D000000">
                     <StackPanel>
-                        <TextBlock Text="Items in Stock" FontSize="14" Foreground="#6B7280"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Grid.Column="0" Text="Items in Stock" FontSize="14" Foreground="#6B7280"/>
+                            <TextBlock Grid.Column="1" Text="📦" FontSize="16"/>
+                        </Grid>
                         <TextBlock Text="{Binding InventoryItems}" FontSize="24" FontWeight="Bold" Foreground="#F59E0B" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding InventoryTrend}" FontSize="12" Foreground="#EF4444" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </UniformGrid>
             
+            <!-- SUMMARY ROW -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,20">
+                <TextBlock Text="Today's Sales Count: " FontWeight="SemiBold" Foreground="#4B5563"/>
+                <TextBlock Text="{Binding TodaySalesCount}" FontWeight="Bold" Foreground="#111827" Margin="0,0,20,0"/>
+                
+                <TextBlock Text="Average Order Value: " FontWeight="SemiBold" Foreground="#4B5563"/>
+                <TextBlock Text="{Binding AverageOrderValue}" FontWeight="Bold" Foreground="#111827"/>
+            </StackPanel>
+
             <!-- MAIN CONTENT AREA -->
-            <Grid Grid.Row="2" ColumnDefinitions="2*,1*">
+            <Grid Grid.Row="3" ColumnDefinitions="2*,1*">
                 
                 <StackPanel Grid.Column="0" Margin="0,0,20,0">
                     
@@ -70,30 +95,36 @@
                             BoxShadow="0 4 6 0 #0D000000">
                         <StackPanel>
                             <TextBlock Text="Revenue Trend" FontSize="18" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,20"/>
-                            <ItemsControl ItemsSource="{Binding RevenueChartData}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="7" Height="180" VerticalAlignment="Bottom"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid VerticalAlignment="Bottom" Margin="8,0">
-                                            <Border Background="{Binding ColorHex}" 
-                                                    Height="{Binding Size}" 
-                                                    CornerRadius="4,4,0,0" 
-                                                    ToolTip.Tip="{Binding Value}" />
-                                            <TextBlock Text="{Binding Label}" 
-                                                       Foreground="#6B7280" FontSize="12" 
-                                                       HorizontalAlignment="Center" 
-                                                       Margin="0,8,0,-20"
-                                                       VerticalAlignment="Bottom"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <!-- Space for labels below -->
-                            <Border Height="20"/>
+                            
+                            <Grid Height="220">
+                                <!-- Background grid line at 50% -->
+                                <Border BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" VerticalAlignment="Center"/>
+                                
+                                <ItemsControl ItemsSource="{Binding RevenueChartData}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="7" VerticalAlignment="Bottom"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel VerticalAlignment="Bottom" Margin="8,0">
+                                                <TextBlock Text="{Binding Value, StringFormat=C0}" 
+                                                           Foreground="#6B7280" FontSize="10" 
+                                                           HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                                <Border Background="{Binding ColorHex}" 
+                                                        Height="{Binding Size}" 
+                                                        CornerRadius="4,4,0,0" 
+                                                        ToolTip.Tip="{Binding Value}" />
+                                                <TextBlock Text="{Binding Label}" 
+                                                           Foreground="#6B7280" FontSize="12" 
+                                                           HorizontalAlignment="Center" 
+                                                           Margin="0,8,0,0"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
                         </StackPanel>
                     </Border>
                     
@@ -160,44 +191,25 @@
                 <!-- RIGHT SIDEBAR -->
                 <StackPanel Grid.Column="1">
                     
-                    <!-- LIVE POS FEED -->
+                    <!-- RECENT SALES ACTIVITY -->
                     <Border Background="White" CornerRadius="12" Padding="24" Margin="0,0,0,20"
                             BoxShadow="0 4 6 0 #0D000000">
                         <StackPanel>
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,20">
-                                <TextBlock Text="Live POS Activity" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
-                                <Ellipse Width="8" Height="8" Fill="#10B981">
-                                    <Ellipse.Styles>
-                                        <Style Selector="Ellipse">
-                                            <Style.Animations>
-                                                <Animation Duration="0:0:1.5" IterationCount="INFINITE">
-                                                    <KeyFrame Cue="0%">
-                                                        <Setter Property="Opacity" Value="1"/>
-                                                    </KeyFrame>
-                                                    <KeyFrame Cue="50%">
-                                                        <Setter Property="Opacity" Value="0.2"/>
-                                                    </KeyFrame>
-                                                    <KeyFrame Cue="100%">
-                                                        <Setter Property="Opacity" Value="1"/>
-                                                    </KeyFrame>
-                                                </Animation>
-                                            </Style.Animations>
-                                        </Style>
-                                    </Ellipse.Styles>
-                                </Ellipse>
+                                <TextBlock Text="Recent Sales Activity" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
                             </Grid>
                             
-                            <ItemsControl ItemsSource="{Binding LivePosFeed}">
+                            <ItemsControl ItemsSource="{Binding RecentSalesOrders}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="#F3F4F6" BorderThickness="0,0,0,1" Padding="0,12">
                                             <Grid ColumnDefinitions="Auto,*,Auto">
                                                 <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" Background="#ECFDF5" Margin="0,0,12,0">
-                                                    <TextBlock Text="💰" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="🛍️" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding OrderId}" FontWeight="SemiBold" Foreground="#111827"/>
-                                                    <TextBlock Text="{Binding Cashier}" FontSize="12" Foreground="#6B7280"/>
+                                                    <TextBlock Text="{Binding Status}" FontSize="12" Foreground="#6B7280"/>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                                                     <TextBlock Text="{Binding Amount}" FontWeight="Bold" Foreground="#10B981" HorizontalAlignment="Right"/>
@@ -222,6 +234,33 @@
                                     Command="{Binding NavigateToCustomersCommand}"/>
                             <Button Content="Receive Inventory" Classes="outline" HorizontalAlignment="Stretch"
                                     Command="{Binding NavigateToInventoryCommand}"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- TOP PERFORMERS -->
+                    <Border Background="White" CornerRadius="12" Padding="24" Margin="0,20,0,0"
+                            BoxShadow="0 4 6 0 #0D000000">
+                        <StackPanel>
+                            <TextBlock Text="Top Performers" FontSize="18" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,20"/>
+                            
+                            <ItemsControl ItemsSource="{Binding TopCashiers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#F3F4F6" BorderThickness="0,0,0,1" Padding="0,12">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Grid.Column="0" Width="30" Height="30" CornerRadius="15" Background="#FEF3C7" Margin="0,0,12,0">
+                                                    <TextBlock Text="⭐" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding CashierName}" FontWeight="SemiBold" Foreground="#111827"/>
+                                                    <TextBlock Text="{Binding SalesCount, StringFormat='{}{0} sales'}" FontSize="12" Foreground="#6B7280"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2" Text="{Binding TotalRevenue, StringFormat=C}" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
                     

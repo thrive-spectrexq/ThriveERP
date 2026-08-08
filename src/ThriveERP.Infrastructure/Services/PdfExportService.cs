@@ -64,6 +64,7 @@ public class PdfExportService : IPdfExportService
         string businessName, 
         string? businessPhone = null, 
         string? businessAddress = null, 
+        string? taxId = null,
         string? footerNote = null, 
         CancellationToken ct = default)
     {
@@ -92,12 +93,20 @@ public class PdfExportService : IPdfExportService
                             {
                                 c.Item().Text($"Phone: {businessPhone}").FontSize(10).FontColor(Colors.Grey.Darken2);
                             }
+                            if (!string.IsNullOrWhiteSpace(taxId))
+                            {
+                                c.Item().Text($"Tax ID: {taxId}").FontSize(10).FontColor(Colors.Grey.Darken2);
+                            }
                         });
 
                         row.RelativeItem().AlignRight().Column(c =>
                         {
                             c.Item().Text("RECEIPT").Bold().FontSize(22).FontColor(Colors.Grey.Darken3);
                             c.Item().Text($"Receipt #: {order.OrderNumber}").FontSize(10).SemiBold();
+                            if (!string.IsNullOrWhiteSpace(order.CustomerName))
+                            {
+                                c.Item().Text($"Customer: {order.CustomerName}").FontSize(10);
+                            }
                             c.Item().Text($"Date: {order.OrderDate:g}").FontSize(10).FontColor(Colors.Grey.Darken2);
                         });
                     });
@@ -109,6 +118,7 @@ public class PdfExportService : IPdfExportService
                 page.Content().PaddingVertical(15).Column(col =>
                 {
                     col.Spacing(15);
+                    col.Item().Text($"Items: {order.Items.Count}").FontSize(10).SemiBold();
 
                     // Line Items Table
                     col.Item().Table(table =>
@@ -159,7 +169,7 @@ public class PdfExportService : IPdfExportService
                     });
 
                     // Summary / Totals Box
-                    col.Item().AlignRight().Column(totals =>
+                    col.Item().AlignRight().Border(1).BorderColor(Colors.Grey.Medium).Padding(10).Column(totals =>
                     {
                         totals.Spacing(4);
                         totals.Item().Text($"Subtotal: {order.Subtotal:C}").FontSize(10);
@@ -169,6 +179,13 @@ public class PdfExportService : IPdfExportService
                         }
                         totals.Item().Text($"Tax (10%): {order.TaxTotal:C}").FontSize(10);
                         totals.Item().PaddingTop(4).Text($"Grand Total: {order.GrandTotal:C}").Bold().FontSize(15).FontColor(Colors.Blue.Darken2);
+                        
+                        totals.Item().Text($"Payment: {order.PaymentMethodUsed}").FontSize(10);
+                        if (order.PaymentMethodUsed.Equals("Cash", StringComparison.OrdinalIgnoreCase))
+                        {
+                            totals.Item().Text($"Amount Tendered: {order.AmountTendered:C}").FontSize(10);
+                            totals.Item().Text($"Change Given: {order.ChangeGiven:C}").FontSize(10);
+                        }
                     });
                 });
 

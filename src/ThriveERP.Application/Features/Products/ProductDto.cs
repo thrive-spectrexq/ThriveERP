@@ -17,4 +17,5 @@ public record ProductDto : IMapFrom<Product>
     public bool TrackBatches { get; init; }
     public int ReorderThreshold { get; init; }
     public bool IsActive { get; init; }
+    public decimal QuantityOnHand { get; init; }
 }

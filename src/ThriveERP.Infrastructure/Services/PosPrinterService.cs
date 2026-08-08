@@ -208,8 +208,13 @@ public class PosPrinterService : IPosPrinterService
         writer.Write(ESC_ALIGN_LEFT);
         writer.Write(Encoding.UTF8.GetBytes($"Order #: {order.OrderNumber}\n"));
         writer.Write(Encoding.UTF8.GetBytes($"Date:   {order.OrderDate:g}\n"));
+        if (!string.IsNullOrWhiteSpace(order.CustomerName))
+        {
+            writer.Write(Encoding.UTF8.GetBytes($"Customer: {order.CustomerName}\n"));
+        }
         writer.Write(Encoding.UTF8.GetBytes(new string('-', cols) + "\n"));
 
+        writer.Write(Encoding.UTF8.GetBytes($"Items: {order.Items.Count}\n"));
         // Items Header
         writer.Write(ESC_BOLD_ON);
         writer.Write(Encoding.UTF8.GetBytes(FormatLine("Item", "Total", cols) + "\n"));
@@ -243,12 +248,21 @@ public class PosPrinterService : IPosPrinterService
         writer.Write(ESC_BOLD_ON);
         writer.Write(Encoding.UTF8.GetBytes(FormatLine("TOTAL DUE:", order.GrandTotal.ToString("C"), cols) + "\n"));
         writer.Write(ESC_BOLD_OFF);
+        
+        writer.Write(Encoding.UTF8.GetBytes(FormatLine("PAYMENT:", order.PaymentMethodUsed, cols) + "\n"));
+        if (order.PaymentMethodUsed.Equals("Cash", StringComparison.OrdinalIgnoreCase))
+        {
+            writer.Write(Encoding.UTF8.GetBytes(FormatLine("TENDERED:", order.AmountTendered.ToString("C"), cols) + "\n"));
+            writer.Write(Encoding.UTF8.GetBytes(FormatLine("CHANGE:", order.ChangeGiven.ToString("C"), cols) + "\n"));
+        }
+
         writer.Write(Encoding.UTF8.GetBytes(new string('=', cols) + "\n"));
 
         // Footer Note
         writer.Write(ESC_ALIGN_CENTER);
-        writer.Write(Encoding.UTF8.GetBytes("Thank you for shopping with us!\n"));
-        writer.Write(Encoding.UTF8.GetBytes("ThriveERP - Enterprise POS System\n\n\n\n"));
+        writer.Write(Encoding.UTF8.GetBytes($"Thank you for shopping at {businessName}!\n"));
+        writer.Write(Encoding.UTF8.GetBytes("ThriveERP - Enterprise POS System\n"));
+        writer.Write(Encoding.UTF8.GetBytes("Scan for digital receipt\n\n\n\n"));
 
         // Cut Paper if enabled
         if (autoCut)

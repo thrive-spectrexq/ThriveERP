@@ -15,12 +15,17 @@ public record SalesOrderDto : IMapFrom<SalesOrder>
     public decimal GrandTotal { get; init; }
     public string Status { get; init; } = string.Empty;
     public DateTime OrderDate { get; init; }
+    public string CustomerName { get; init; } = "Walk-in Customer";
+    public string PaymentMethodUsed { get; init; } = "Cash";
+    public decimal AmountTendered { get; init; }
+    public decimal ChangeGiven { get; init; }
     public System.Collections.Generic.List<SaleItemDto> Items { get; init; } = new();
 
     public void Mapping(Profile profile)
     {
         profile.CreateMap<SalesOrder, SalesOrderDto>()
             .ForMember(d => d.Status, opt => opt.MapFrom(s => s.Status.ToString()))
+            .ForMember(d => d.CustomerName, opt => opt.MapFrom(s => s.Customer != null ? s.Customer.Name : "Walk-in Customer"))
             .ForMember(d => d.Items, opt => opt.MapFrom(s => s.SaleItems));
     }
 }

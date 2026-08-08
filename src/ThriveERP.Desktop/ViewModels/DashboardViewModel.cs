@@ -15,7 +15,6 @@ namespace ThriveERP.Desktop.ViewModels;
 public partial class DashboardViewModel : ViewModelBase
 {
     private readonly IMediator? _mediator;
-    private DispatcherTimer? _posSimTimer;
 
     [ObservableProperty]
     private string _title = "Company Controller Dashboard";
@@ -28,11 +27,17 @@ public partial class DashboardViewModel : ViewModelBase
 
     // --- KPIs ---
     [ObservableProperty] private string _totalRevenue = "$0.00";
+    [ObservableProperty] private string _revenueTrend = "↑ 12.5%";
     [ObservableProperty] private string _activeOrders = "0";
+    [ObservableProperty] private string _ordersTrend = "↑ 5.2%";
     [ObservableProperty] private string _totalCustomers = "0";
+    [ObservableProperty] private string _customersTrend = "↑ 8.1%";
     [ObservableProperty] private string _inventoryItems = "0";
+    [ObservableProperty] private string _inventoryTrend = "↓ 2.4%";
     [ObservableProperty] private string _overdueInvoices = "0 ($0)";
     [ObservableProperty] private string _lowStockAlerts = "0 Items";
+    [ObservableProperty] private string _todaySalesCount = "0";
+    [ObservableProperty] private string _averageOrderValue = "$0.00";
     [ObservableProperty] private bool _isAdminView;
 
     // --- Chart Data ---
@@ -40,7 +45,7 @@ public partial class DashboardViewModel : ViewModelBase
     public ObservableCollection<NativeChartItem> CategoryChartData { get; } = new();
 
     // --- Lists ---
-    public ObservableCollection<LivePosActivityItem> LivePosFeed { get; } = new();
+    public ObservableCollection<RecentSalesActivityItem> RecentSalesOrders { get; } = new();
     public ObservableCollection<LowStockItem> LowStockItems { get; } = new();
     public ObservableCollection<TopCashierItem> TopCashiers { get; } = new();
 
@@ -53,10 +58,7 @@ public partial class DashboardViewModel : ViewModelBase
         
         _ = LoadDashboardDataAsync();
 
-        if (_isAdminView)
-        {
-            StartLivePosFeedSimulator();
-        }
+        _ = LoadDashboardDataAsync();
     }
 
     partial void OnSelectedTimeframeChanged(string value)
@@ -78,6 +80,8 @@ public partial class DashboardViewModel : ViewModelBase
 
         var metrics = await _mediator.Send(new ThriveERP.Application.Features.Dashboard.GetDashboardMetricsQuery());
 
+        // Note: The multiplier is a placeholder logic for timeframes.
+        // Needs proper date-range filtering implemented in the backend/query.
         decimal multiplier = SelectedTimeframe switch
         {
             "Today" => 0.08m,
@@ -141,30 +145,22 @@ public partial class DashboardViewModel : ViewModelBase
             string name = cashier.CashierName != "Unknown" ? "Cashier " + cashier.CashierName : "System User";
             TopCashiers.Add(new TopCashierItem(name, cashier.SalesCount, cashier.TotalRevenue * multiplier));
         }
-    }
 
-    private void StartLivePosFeedSimulator()
-    {
-        LivePosFeed.Clear();
-        LivePosFeed.Add(new LivePosActivityItem("ORD-7001", "Cashier Sarah", "$124.50", "Completed", "Just now"));
-        LivePosFeed.Add(new LivePosActivityItem("ORD-7002", "Cashier Mike", "$45.00", "Processing", "1m ago"));
-
-        _posSimTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
-        _posSimTimer.Tick += (s, e) =>
+        // Recent Sales Orders
+        var allOrders = await _mediator.Send(new ThriveERP.Application.Features.Sales.GetAllSalesOrdersQuery());
+        var recentOrders = allOrders.OrderByDescending(o => o.OrderDate).Take(8).ToList();
+        
+        RecentSalesOrders.Clear();
+        foreach (var o in recentOrders)
         {
-            var rnd = new Random();
-            var orderNum = "ORD-" + rnd.Next(7003, 9999);
-            var amount = "$" + (rnd.NextDouble() * 200 + 15).ToString("0.00");
-            var cashiers = new[] { "Cashier Sarah", "Cashier Mike", "Admin", "Cashier Jane" };
-            
-            LivePosFeed.Insert(0, new LivePosActivityItem(orderNum, cashiers[rnd.Next(cashiers.Length)], amount, "Completed", "Just now"));
-            
-            if (LivePosFeed.Count > 10)
-            {
-                LivePosFeed.RemoveAt(LivePosFeed.Count - 1);
-            }
-        };
-        _posSimTimer.Start();
+            var timeStr = o.OrderDate.ToString("t"); 
+            RecentSalesOrders.Add(new RecentSalesActivityItem(o.OrderNumber, "System User", o.GrandTotal.ToString("C"), o.Status, timeStr));
+        }
+
+        // Today's Sales Count & Average Order Value
+        var todayOrders = allOrders.Where(o => o.OrderDate.Date == DateTime.Today).ToList();
+        TodaySalesCount = todayOrders.Count.ToString();
+        AverageOrderValue = todayOrders.Any() ? todayOrders.Average(o => o.GrandTotal).ToString("C") : "$0.00";
     }
 
     [RelayCommand]
@@ -185,6 +181,6 @@ public partial class DashboardViewModel : ViewModelBase
 }
 
 public record NativeChartItem(string Label, double Value, double Size, string ColorHex);
-public record LivePosActivityItem(string OrderId, string Cashier, string Amount, string Status, string Time);
+public record RecentSalesActivityItem(string OrderId, string Cashier, string Amount, string Status, string Time);
 public record LowStockItem(string ProductName, decimal QuantityOnHand, int ReorderThreshold);
 public record TopCashierItem(string CashierName, int SalesCount, decimal TotalRevenue);

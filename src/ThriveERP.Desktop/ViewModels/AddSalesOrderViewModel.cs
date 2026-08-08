@@ -123,7 +123,7 @@ public partial class AddSalesOrderViewModel : ViewModelBase
     private void CalculateTotals()
     {
         Subtotal = Items.Sum(i => i.LineTotal);
-        TaxTotal = 0; // Tax logic
+        TaxTotal = Subtotal * 0.15m; // 15% tax
         GrandTotal = Subtotal + TaxTotal;
     }
 
@@ -163,18 +163,9 @@ public partial class AddSalesOrderViewModel : ViewModelBase
     [RelayCommand]
     private void PayNow()
     {
-        Console.WriteLine($"PayNow clicked. Items count: {Items.Count}. Valid items: {Items.Count(i => i.SelectedProduct != null)}");
-        
-        // Show overlay even if no items for debugging, but set total to 0
-        if (!Items.Any(i => i.SelectedProduct != null)) 
-        {
-            Console.WriteLine("No items selected. Proceeding anyway for debug.");
-        }
-
         AmountTendered = GrandTotal;
         CalculateChange();
         ShowPaymentOverlay = true;
-        Console.WriteLine($"ShowPaymentOverlay is now {ShowPaymentOverlay}");
     }
 
     [RelayCommand]
@@ -186,7 +177,7 @@ public partial class AddSalesOrderViewModel : ViewModelBase
     [RelayCommand]
     private async Task ConfirmPaymentAsync()
     {
-        var warehouseId = Guid.NewGuid(); // Dummy warehouse ID for MVP
+        var warehouseId = Guid.Empty; // Default warehouse
         
         var dtoList = Items.Where(i => i.SelectedProduct != null)
                            .Select(i => new CreateSaleItemDto(i.SelectedProduct!.Id, i.Quantity, i.UnitPrice, i.DiscountAmount))
