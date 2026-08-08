@@ -148,8 +148,12 @@ public partial class SalesViewModel : ViewModelBase
         var q = BarcodeQuery.Trim().ToLower();
         var match = _allProducts.FirstOrDefault(p => 
             (!string.IsNullOrEmpty(p.Barcode) && p.Barcode.ToLower() == q) || 
-            p.Sku.ToLower() == q || 
-            p.Name.ToLower().Contains(q));
+            p.Sku.ToLower() == q);
+
+        if (match == null)
+        {
+            match = _allProducts.FirstOrDefault(p => p.Name.ToLower().Contains(q));
+        }
 
         if (match != null)
         {
