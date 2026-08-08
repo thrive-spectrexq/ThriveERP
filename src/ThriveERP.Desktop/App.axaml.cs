@@ -28,6 +28,7 @@ public partial class App : Avalonia.Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((context, config) =>
             {
+                config.SetBasePath(AppContext.BaseDirectory);
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             })
             .ConfigureServices((context, services) =>
@@ -61,11 +62,11 @@ public partial class App : Avalonia.Application
 
         Services = _host.Services;
 
-        // Ensure database is created (for dev purposes)
+        // Run database migrations on startup to keep schema up-to-date
         using (var scope = Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ThriveERP.Infrastructure.Data.ThriveErpDbContext>();
-            db.Database.EnsureCreated();
+            Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.Migrate(db.Database);
         }
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

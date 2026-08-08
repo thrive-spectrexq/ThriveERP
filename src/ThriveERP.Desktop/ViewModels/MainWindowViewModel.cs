@@ -11,6 +11,8 @@ using ThriveERP.Application.Features.Customers;
 using ThriveERP.Application.Features.HR;
 using ThriveERP.Application.Features.Products;
 using ThriveERP.Application.Features.Sales;
+using ThriveERP.Application.Features.Settings;
+using ThriveERP.Application.Common.Interfaces;
 using ThriveERP.Desktop.Services;
 
 namespace ThriveERP.Desktop.ViewModels;
@@ -72,6 +74,17 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public static MainWindowViewModel? Instance { get; private set; }
 
+    private readonly ILicenseService _licenseService;
+
+    [ObservableProperty]
+    private bool _isLicenseLocked;
+
+    [ObservableProperty]
+    private string _licenseKeyInput = string.Empty;
+
+    [ObservableProperty]
+    private string _licenseErrorMessage = string.Empty;
+
     public MainWindowViewModel(IMediator mediator)
     {
         Instance = this;
@@ -83,8 +96,63 @@ public partial class MainWindowViewModel : ViewModelBase
         // Apply Cool Slate Light Theme by default
         ThemeManager.ApplyTheme(AppTheme.CoolSlate);
 
+        _licenseService = App.Services!.GetRequiredService<ILicenseService>();
+
         SetupForRole(App.CurrentRole);
         InitializeNotifications();
+        
+        _ = InitializeLicenseAsync();
+    }
+
+    private async Task InitializeLicenseAsync()
+    {
+        try
+        {
+            var licenseKey = await _mediator.Send(new GetSettingQuery("LicenseKey"));
+            CheckLicenseStatus(licenseKey ?? string.Empty);
+        }
+        catch
+        {
+            // If DB is not ready or query fails, assume locked for safety
+            IsLicenseLocked = true;
+            LicenseErrorMessage = "System startup error. Please enter a valid license.";
+        }
+    }
+
+    private void CheckLicenseStatus(string licenseKey)
+    {
+        var days = _licenseService.GetDaysRemaining(licenseKey);
+        if (days <= 0)
+        {
+            IsLicenseLocked = true;
+            LicenseErrorMessage = "No valid license found or license has expired. Please activate ThriveERP.";
+        }
+        else if (days <= 30)
+        {
+            IsLicenseLocked = false;
+            ShowToast($"License expiring in {days} days. Please renew soon.");
+        }
+        else
+        {
+            IsLicenseLocked = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ActivateLicenseAsync()
+    {
+        LicenseErrorMessage = string.Empty;
+        var validation = _licenseService.ValidateLicense(LicenseKeyInput);
+        if (validation.IsValid)
+        {
+            await _mediator.Send(new UpdateSettingCommand("LicenseKey", LicenseKeyInput));
+            IsLicenseLocked = false;
+            ShowToast($"License Activated! Welcome, {validation.CustomerName}. Expires: {validation.ExpirationDate:d}");
+        }
+        else
+        {
+            LicenseErrorMessage = validation.ErrorMessage ?? "Invalid license key.";
+        }
     }
 
     public void SetupForRole(string roleName)

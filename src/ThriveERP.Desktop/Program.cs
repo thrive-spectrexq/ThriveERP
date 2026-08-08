@@ -11,12 +11,20 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        var culture = new System.Globalization.CultureInfo("en-GH");
-        culture.NumberFormat.CurrencySymbol = "GH₵";
-        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
-        System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
+        try
+        {
+            var culture = new System.Globalization.CultureInfo("en-GH");
+            culture.NumberFormat.CurrencySymbol = "GH₵";
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = culture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = culture;
 
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+        catch (Exception ex)
+        {
+            System.IO.File.WriteAllText("crash_log.txt", ex.ToString());
+            throw;
+        }
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

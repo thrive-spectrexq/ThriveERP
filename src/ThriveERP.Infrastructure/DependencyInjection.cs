@@ -58,6 +58,7 @@ public static class DependencyInjection
         services.AddSingleton<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());
         services.AddTransient<IPasswordHasher, PasswordHasherService>();
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+        services.AddTransient<ILicenseService, LicenseService>();
         
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IPdfExportService, PdfExportService>();
