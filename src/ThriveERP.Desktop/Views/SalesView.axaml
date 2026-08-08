@@ -48,42 +48,21 @@
             </Border>
 
             <!-- Product Cards Grid -->
-            <ScrollViewer>
-              <ItemsControl ItemsSource="{Binding PosProducts}">
-                <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" />
-                  </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <Button Command="{Binding $parent[UserControl].((vm:SalesViewModel)DataContext).AddToCartCommand}" CommandParameter="{Binding}"
-                            Background="{DynamicResource AppCardBackground}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1" CornerRadius="10" Margin="6" Padding="0" Width="165" Height="150" Cursor="Hand">
-                      <Grid RowDefinitions="*, Auto">
-                        <Border Grid.Row="0" Background="{DynamicResource AppHoverBackground}" CornerRadius="10,10,0,0">
-                          <Panel>
-                            <Border Background="#3B82F6" CornerRadius="4" Padding="4,2" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4">
-                              <TextBlock Text="{Binding QuantityOnHand, StringFormat='{}{0} in stock'}" FontSize="9" FontWeight="Bold" Foreground="White"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                              <TextBlock Text="📦" FontSize="36" HorizontalAlignment="Center"/>
-                              <TextBlock Text="{Binding CategoryName}" FontSize="10" Foreground="{DynamicResource AppTextSecondary}" HorizontalAlignment="Center" Margin="0,2,0,0"/>
-                            </StackPanel>
-                          </Panel>
-                        </Border>
-                        <StackPanel Grid.Row="1" Margin="10" Background="Transparent">
-                          <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource AppTextPrimary}" TextTrimming="CharacterEllipsis"/>
-                          <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
-                            <TextBlock Grid.Column="0" Text="{Binding SellingPrice, StringFormat={}{0:C}}" FontSize="14" Foreground="#3B82F6" FontWeight="Bold"/>
-                            <TextBlock Grid.Column="1" Text="+ Add" FontSize="11" FontWeight="Bold" Foreground="#10B981"/>
-                          </Grid>
-                        </StackPanel>
-                      </Grid>
-                    </Button>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </ScrollViewer>
+            <DataGrid ItemsSource="{Binding PosProducts}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal" BorderThickness="0" Margin="10">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Product Name" Binding="{Binding Name}" Width="*" />
+                <DataGridTextColumn Header="Category" Binding="{Binding CategoryName}" Width="150" />
+                <DataGridTextColumn Header="Stock" Binding="{Binding QuantityOnHand}" Width="80" />
+                <DataGridTextColumn Header="Price" Binding="{Binding SellingPrice, StringFormat={}{0:C}}" Width="100" />
+                <DataGridTemplateColumn Header="Action" Width="100">
+                  <DataGridTemplateColumn.CellTemplate>
+                    <DataTemplate>
+                      <Button Content="+ Add" Command="{Binding $parent[UserControl].((vm:SalesViewModel)DataContext).AddToCartCommand}" CommandParameter="{Binding}" Classes="outline" Foreground="#10B981" Margin="4" Padding="8,4" HorizontalAlignment="Center"/>
+                    </DataTemplate>
+                  </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+              </DataGrid.Columns>
+            </DataGrid>
           </DockPanel>
 
           <!-- POS Right Side: Cart / Checkout -->
